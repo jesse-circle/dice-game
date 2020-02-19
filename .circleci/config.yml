@@ -8,3 +8,18 @@ jobs:
       - checkout
       - run: go get -v -t -d ./...
       - run: go test -v ./...
+      - run: go build
+  deploy:
+    docker:
+      - image: google/cloud-sdk
+    steps:
+      - run: |
+          echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+          gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+          gcloud app deploy --promote app.yaml
+workflows:
+  version: 2
+  test_and_deploy:
+    jobs:
+      - test
+      - deploy
