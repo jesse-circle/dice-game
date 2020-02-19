@@ -1,0 +1,21 @@
+<html>
+    <head>
+        <title>CircleCI Challenge</title>
+        <script>
+        function showRoll() {
+            var roll = document.getElementById("roll"),
+                roll1 = Math.ceil(Math.random() * 6),
+                roll2 = Math.ceil(Math.random() * 6);
+            roll.innerHTML = "You rolled a " + roll1 + " and a " + roll2;
+        }
+        </script>
+    </head>
+
+    <body>
+        <h1>Welcome to the CircleCI Challenge</h1>
+
+        <button onclick="showRoll()">Roll the dice</button>
+
+        <div id="roll"></div>
+    </body>
+</html>

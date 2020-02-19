@@ -1,0 +1,7 @@
+runtime: go111
+handlers:
+- url: /templates
+  static_dir: templates
+
+- url: /.*
+  script: auto
