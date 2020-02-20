@@ -10,11 +10,13 @@ jobs:
       - run: mkdir -p workspace
       - run: go test -c -o workspace/test
       - run: go build -o workspace/circleci
+      - run: cp -r templates workspace/
       - persist_to_workspace:
           root: workspace
           paths:
             - test
             - circleci
+            - templates
   test:
     docker:
       - image: chromedp/headless-shell:latest
@@ -23,7 +25,7 @@ jobs:
       - run: apt-get update && apt-get -y install ca-certificates
       - attach_workspace:
           at: /tmp/workspace
-      - run: /tmp/workspace/test
+      - run: cd /tmp/workspace && ./test
   deploy:
     docker:
       - image: google/cloud-sdk
