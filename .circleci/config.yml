@@ -1,21 +1,21 @@
 version: 2
 jobs:
-  test:
+  build:
     docker:
       - image: circleci/golang:1.11
     working_directory: /go/src/github.com/mentat/circle-ci-fun
     steps:
       - checkout
       - run: go get -v -t -d ./...
-      - run: go test -v ./...
       - run: mkdir -p workspace
       - run: go test -c -o workspace/test
-      - run: go build
+      - run: go build -o workspace/circleci
       - persist_to_workspace:
           root: workspace
           paths:
-            - testbuild
-  test_on_chrome:
+            - test
+            - circleci
+  test:
     docker:
       - image: chromedp/headless-shell:latest
     working_directory: /go/src/github.com/mentat/circle-ci-fun
@@ -36,6 +36,6 @@ workflows:
   version: 2
   test_and_deploy:
     jobs:
+      - build
       - test
-      - test_on_chrome
       - deploy
