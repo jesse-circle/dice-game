@@ -8,7 +8,20 @@ jobs:
       - checkout
       - run: go get -v -t -d ./...
       - run: go test -v ./...
+      - run: mkdir -p workspace
+      - run: go test -c -o workspace/test
       - run: go build
+      - persist_to_workspace:
+            paths:
+              - testbuild
+  test_on_chrome:
+    docker:
+      - image: chromedp/headless-shell:latest
+    working_directory: /go/src/github.com/mentat/circle-ci-fun
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run: /tmp/workspace/test
   deploy:
     docker:
       - image: google/cloud-sdk
@@ -23,4 +36,5 @@ workflows:
   test_and_deploy:
     jobs:
       - test
+      - test_on_chrome
       - deploy
