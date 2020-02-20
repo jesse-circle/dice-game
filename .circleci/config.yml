@@ -22,7 +22,7 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace
-      - run: /tmp/workspace/test
+      - run: ls /tmp/workspace
   deploy:
     docker:
       - image: google/cloud-sdk
