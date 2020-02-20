@@ -20,6 +20,7 @@ jobs:
       - image: chromedp/headless-shell:latest
     working_directory: /go/src/github.com/mentat/circle-ci-fun
     steps:
+      - run: apt-get update && apt-get -y install ca-certificates
       - attach_workspace:
           at: /tmp/workspace
       - run: /tmp/workspace/test
