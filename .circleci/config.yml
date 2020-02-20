@@ -12,8 +12,9 @@ jobs:
       - run: go test -c -o workspace/test
       - run: go build
       - persist_to_workspace:
-            paths:
-              - testbuild
+          root: workspace
+          paths:
+            - testbuild
   test_on_chrome:
     docker:
       - image: chromedp/headless-shell:latest
