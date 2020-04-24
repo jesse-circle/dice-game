@@ -11,8 +11,8 @@ jobs:
       - checkout
       - run: go get -v -t -d ./...
       - run: mkdir -p workspace
-      - run: go test -c -o workspace/test
-      - run: go build -o workspace/circleci
+      - run: go test -c -o workspace/test<< parameters.version >>
+      - run: go build -o workspace/circleci<< parameters.version >>
       - run: cp -r templates workspace/
       - persist_to_workspace:
           root: workspace
@@ -33,6 +33,9 @@ jobs:
           path: circleci
           destination: circleci
   test:
+    parameters:
+      version: 
+        type: string
     docker:
       - image: chromedp/headless-shell:latest
     working_directory: /go/src/github.com/mentat/circle-ci-fun
@@ -40,7 +43,7 @@ jobs:
       - run: apt-get update && apt-get -y install ca-certificates
       - attach_workspace:
           at: /tmp/workspace
-      - run: cd /tmp/workspace && ./test
+      - run: cd /tmp/workspace && ./test<< parameters.version >>
   deploy:
     docker:
       - image: google/cloud-sdk
