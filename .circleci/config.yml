@@ -1,8 +1,8 @@
-version: 2
+version: 2.1
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.11
+      - image: circleci/golang:<< matrix.version >>
     working_directory: /go/src/github.com/mentat/circle-ci-fun
     steps:
       - checkout
@@ -17,6 +17,18 @@ jobs:
             - test
             - circleci
             - templates
+  build-windows:
+    executor:
+      name: win/default 
+      size: "medium"
+    steps:
+      - checkout
+      - run:
+         command: go build -o circleci
+         shell: bash --login -eo pipefail
+      - store_artifacts:
+          path: circleci
+          destination: circleci
   test:
     docker:
       - image: chromedp/headless-shell:latest
@@ -39,7 +51,10 @@ workflows:
   version: 2
   test_and_deploy:
     jobs:
-      - build
+      - build:
+          matrix:
+            parameters:
+              version: ["1.11", "1.12", "1.13"]
       - test:
           requires:
           - build
