@@ -43,7 +43,7 @@ jobs:
       - run: apt-get update && apt-get -y install ca-certificates
       - attach_workspace:
           at: /tmp/workspace
-      - run: cd /tmp/workspace && ./test<< parameters.version >>
+      - run: cd /tmp/workspace/<< parameters.version >> && ./test
   deploy:
     docker:
       - image: google/cloud-sdk
