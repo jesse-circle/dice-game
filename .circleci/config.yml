@@ -62,6 +62,9 @@ workflows:
             parameters:
               version: ["1.11", "1.12", "1.13"]
       - test:
+          matrix:
+            parameters:
+              version: ["1.11", "1.12", "1.13"]
           requires:
           - build
       - deploy:
