@@ -15,7 +15,7 @@ jobs:
       - run: go build -o workspace/<< parameters.version >>/circleci
       - run: cp -r templates workspace/<< parameters.version >>/
       - persist_to_workspace:
-          root: workspace
+          root: workspace/<< parameters.version >>
           paths:
             - test
             - circleci
