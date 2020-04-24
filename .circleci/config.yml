@@ -1,4 +1,8 @@
 version: 2.1
+
+orbs:
+  win: circleci/windows@2.2.0 # The Windows orb give you everything you need to start using the Windows executor.
+
 jobs:
   build:
     parameters:
@@ -6,7 +10,7 @@ jobs:
         type: string
     docker:
       - image: circleci/golang:<< parameters.version >>
-    working_directory: /go/src/github.com/mentat/circle-ci-fun
+    working_directory: /go/src/github.com/mentat/circle-demo-go
     steps:
       - checkout
       - run: go get -v -t -d ./...
@@ -38,7 +42,7 @@ jobs:
         type: string
     docker:
       - image: chromedp/headless-shell:latest
-    working_directory: /go/src/github.com/mentat/circle-ci-fun
+    working_directory: /go/src/github.com/mentat/circle-demo-go
     steps:
       - run: apt-get update && apt-get -y install ca-certificates
       - attach_workspace:
