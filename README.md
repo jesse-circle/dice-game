@@ -1,8 +1,4 @@
-# Circle CI Challenge
-
-This project is a simple web app that is built, tested, and deployed with Circle CI.
-
-[![CircleCI](https://circleci.com/gh/mentat/circle-ci-fun.svg?style=svg&circle-token=b502798af72ccbea153e1f86765b5072a055b4d3)](https://circleci.com/gh/mentat/circle-ci-fun)
+# Circle CI Demo
 
 # Building
 
