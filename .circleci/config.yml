@@ -19,11 +19,11 @@ jobs:
       - run: go build -o workspace/<< parameters.version >>/circleci
       - run: cp -r templates workspace/<< parameters.version >>/
       - persist_to_workspace:
-          root: workspace/<< parameters.version >>
+          root: workspace
           paths:
-            - test
-            - circleci
-            - templates
+            - << parameters.version >>/test
+            - << parameters.version >>/circleci
+            - << parameters.version >>/templates
   build-windows:
     executor:
       name: win/default 
