@@ -10,10 +10,10 @@ jobs:
     steps:
       - checkout
       - run: go get -v -t -d ./...
-      - run: mkdir -p workspace
-      - run: go test -c -o workspace/test<< parameters.version >>
-      - run: go build -o workspace/circleci<< parameters.version >>
-      - run: cp -r templates workspace/
+      - run: mkdir -p workspace/<< parameters.version >>
+      - run: go test -c -o workspace/<< parameters.version >>/test
+      - run: go build -o workspace/<< parameters.version >>/circleci
+      - run: cp -r templates workspace/<< parameters.version >>/
       - persist_to_workspace:
           root: workspace
           paths:
