@@ -1,5 +1,11 @@
 # Circle CI Demo
 
+## Features
+ 1. Build go application.
+ 2. Headless browser test.
+ 3. Multiple Go Version build check.
+ 4. Deploy to AppEngine.
+
 # Building
 
 ```
