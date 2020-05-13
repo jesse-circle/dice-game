@@ -1,6 +1,7 @@
 version: 2.1
 
 orbs:
+  gcp-gcr: circleci/gcp-gcr@0.7.1
   aws-ecr: circleci/aws-ecr@6.8.2
   gcp-gke: circleci/gcp-gke@1.0.4
   aws-eks: circleci/aws-eks@0.2.7
@@ -60,15 +61,6 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - run: cd /tmp/workspace/<< parameters.version >> && ./test
-  deploy-gae:
-    docker:
-      - image: google/cloud-sdk
-    steps:
-      - checkout
-      - run: |
-          echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
-          gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
-          gcloud app deploy --promote app.yaml
 workflows:
   version: 2
   test_and_deploy:
@@ -87,10 +79,15 @@ workflows:
           pre-steps:
             - attach_workspace:
                 at: /tmp/workspace
+            - run:
+                command: ls /tmp/workspace
+            - run:
+                command: ls /go/src/github.com/mentat/circle-demo-go
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           tag: "${CIRCLE_SHA1}"
           requires:
           - test
-      - deploy-gae:
-          requires:
-          - test
+      #- gcp-gcr/build-and-push-image:
+      #    image: my-image
+      #    registry-url: us.gcr.io
+
