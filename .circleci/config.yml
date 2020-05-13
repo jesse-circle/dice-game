@@ -51,6 +51,15 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - run: cd /tmp/workspace/<< parameters.version >> && ./test
+  security:
+    docker:
+      - image: chromedp/headless-shell:latest
+    working_directory: /go/src/github.com/mentat/circle-demo-go
+    steps:
+      - run: apt-get update && apt-get -y install ca-certificates
+      - attach_workspace:
+          at: /tmp/workspace
+      - run: cd /tmp/workspace/<< parameters.version >> && ./test
   deploy-gae:
     docker:
       - image: google/cloud-sdk
@@ -75,6 +84,9 @@ workflows:
           requires:
           - build
       - aws-ecr/build-and-push-image:
+          pre-steps:
+            - attach_workspace:
+              at: /tmp/workspace
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           tag: "${CIRCLE_SHA1}"
           requires:
