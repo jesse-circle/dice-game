@@ -5,7 +5,7 @@ orbs:
   aws-ecr: circleci/aws-ecr@6.8.2
   gcp-gke: circleci/gcp-gke@1.0.4
   aws-eks: circleci/aws-eks@0.2.7
-  win: circleci/windows@2.2.0 # The Windows orb give you everything you need to start using the Windows executor.
+  win: circleci/windows@2.2.0 
 
 jobs:
   build:
@@ -76,13 +76,8 @@ workflows:
           requires:
           - build
       - aws-ecr/build-and-push-image:
-          pre-steps:
-            - attach_workspace:
-                at: /tmp/workspace
-            - run:
-                command: ls /tmp/workspace
-            - run:
-                command: ls /go/src/github.com/mentat/circle-demo-go
+          attach-workspace: true
+          workspace-root: /tmp/workspace
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           tag: "${CIRCLE_SHA1}"
           requires:
