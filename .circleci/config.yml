@@ -101,7 +101,7 @@ workflows:
       - create-deployment:
           cluster-name: jlovelace-demo-k8s
           requires:
-            - aws-eks/build-and-push-image
+            - aws-ecr/build-and-push-image
       #- gcp-gcr/build-and-push-image:
       #    image: my-image
       #    registry-url: us.gcr.io
