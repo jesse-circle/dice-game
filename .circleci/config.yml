@@ -78,7 +78,7 @@ jobs:
           install-kubectl: true
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
-          resource-file-path: k8s/deployment.yaml
+          resource-file-path: k8s/deployment.yml
           resource-name: deployment/demoApp
 workflows:
   version: 2
