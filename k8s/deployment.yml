@@ -1,19 +1,31 @@
 apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
-  name: myApp
+  name: demoApp
 spec:
   selector:
     matchLabels:
-      app: myApp
+      app: demoApp
   replicas: 2
   template:
     metadata:
       labels:
-        app: myApp
+        app: demoApp
     spec:
       containers:
-      - name: myApp
+      - name: 241099261431.dkr.ecr.us-east-1.amazonaws.com/jesse-ccits/demo-app:latest
         image: 
         ports:
         - containerPort: 9000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demoService
+spec:
+  selector:
+    app: demoApp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9000

@@ -61,6 +61,22 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - run: cd /tmp/workspace/<< parameters.version >> && ./test
+  create-deployment:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+    steps:
+      - checkout
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
+      - kubernetes/create-or-update-resource:
+          get-rollout-status: true
+          resource-file-path: k8s/deployment.yaml
+          resource-name: deployment/demoApp
 workflows:
   version: 2
   test_and_deploy:
@@ -81,7 +97,14 @@ workflows:
           tag: "${CIRCLE_SHA1}"
           requires:
           - test
+      - create-deployment:
+          cluster-name: jlovelace-demo-k8s
+          requires:
+            - aws-eks/build-and-push-image
       #- gcp-gcr/build-and-push-image:
       #    image: my-image
       #    registry-url: us.gcr.io
-
+      #- request-testing:
+      #  type: approval
+      #  requires:
+      #    - build
