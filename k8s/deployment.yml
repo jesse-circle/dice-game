@@ -1,0 +1,19 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: myApp
+spec:
+  selector:
+    matchLabels:
+      app: myApp
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: myApp
+    spec:
+      containers:
+      - name: myApp
+        image: 
+        ports:
+        - containerPort: 9000
