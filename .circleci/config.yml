@@ -47,7 +47,7 @@ jobs:
         type: string
     docker:
       - image: chromedp/headless-shell:latest
-    resource_class: large
+    #resource_class: large
     working_directory: /go/src/github.com/mentat/circle-demo-go
     steps:
       - run: apt-get update && apt-get -y install ca-certificates
