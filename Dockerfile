@@ -3,7 +3,7 @@ MAINTAINER jesse@circleci.com
 
 RUN apk update && apk add -u ca-certificates
 
-COPY workspace/1.13/circleci /usr/bin/circleci
+COPY 1.13/circleci /usr/bin/circleci
 
 COPY templates/ /
 
