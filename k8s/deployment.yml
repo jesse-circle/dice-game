@@ -5,12 +5,12 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: demo.app
+      app: demo-app
   replicas: 2
   template:
     metadata:
       labels:
-        app: demo.app
+        app: demo-app
     spec:
       containers:
       - name: 241099261431.dkr.ecr.us-east-1.amazonaws.com/jesse-ccits/demo-app:latest
@@ -21,10 +21,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: demo.service
+  name: demo-service
 spec:
   selector:
-    app: demo.app
+    app: demo-app
   ports:
     - protocol: TCP
       port: 80
