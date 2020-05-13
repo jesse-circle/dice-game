@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  aws-ecr: circleci/aws-ecr@x.y.z
+  aws-ecr: circleci/aws-ecr@6.8.2
   gcp-gke: circleci/gcp-gke@1.0.4
   aws-eks: circleci/aws-eks@0.2.7
   win: circleci/windows@2.2.0 # The Windows orb give you everything you need to start using the Windows executor.
