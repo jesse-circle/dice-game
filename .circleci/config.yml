@@ -77,7 +77,6 @@ workflows:
           - build
       - aws-ecr/build-and-push-image:
           attach-workspace: true
-          workspace-root: /tmp/workspace
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           tag: "${CIRCLE_SHA1}"
           requires:
