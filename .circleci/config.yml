@@ -1,6 +1,7 @@
 version: 2.1
 
 orbs:
+  kubernetes: circleci/kubernetes@0.11.0
   gcp-gcr: circleci/gcp-gcr@0.7.1
   aws-ecr: circleci/aws-ecr@6.8.2
   gcp-gke: circleci/gcp-gke@1.0.4
