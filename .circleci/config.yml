@@ -79,7 +79,7 @@ jobs:
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
           resource-file-path: k8s/deployment.yml
-          resource-name: deployment/demoApp
+          resource-name: deployment/demo-app
 workflows:
   version: 2
   test_and_deploy:
