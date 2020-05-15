@@ -3,7 +3,7 @@ MAINTAINER jesse@circleci.com
 
 RUN apk update && apk add -u ca-certificates
 
-COPY 1.13/circleci /circleci
+COPY 1.12/circleci /circleci
 
 COPY templates/index.html /templates/index.html
 
