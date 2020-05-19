@@ -94,7 +94,7 @@ jobs:
       - run: ls
       - run: pwd
       - attach_workspace:
-          at: /go/src/github.com/mentat/circle-demo-go
+          at: /home/circleci/project
       - gcp-gcr/gcr-auth
       - gcp-gcr/build-image:
           image: demo-app
