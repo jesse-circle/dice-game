@@ -26,7 +26,7 @@ func main() {
 	}
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", HandleGet)
+	r.HandleFunc("/", HandleGet).Methods("GET")
 	http.Handle("/", r)
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
