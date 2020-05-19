@@ -91,10 +91,10 @@ jobs:
     executor: gcp-gcr/default
     steps:
       - checkout
-      - run: ls
-      - run: pwd
       - attach_workspace:
           at: /home/circleci/project
+      - run: ls
+      - run: pwd
       - gcp-gcr/gcr-auth
       - gcp-gcr/build-image:
           image: demo-app
@@ -109,7 +109,7 @@ workflows:
       - build:
           matrix:
             parameters:
-              version: ["1.11", "1.12", "1.13"]
+              version: ["1.11", "1.12", "1.13", "1.14"]
       - test:
           matrix:
             parameters:
