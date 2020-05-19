@@ -91,9 +91,10 @@ jobs:
     executor: gcp-gcr/default
     steps:
       - checkout
+      - run: ls
+      - run: pwd
       - attach_workspace:
           at: /go/src/github.com/mentat/circle-demo-go
-      - run: ls
       - gcp-gcr/gcr-auth
       - gcp-gcr/build-image:
           image: demo-app
