@@ -197,7 +197,6 @@ workflows:
           filters:
             branches:
               only: /^master$/
-          type: approval
           namespace: ""
           tag: "latest"
           context: jlCloudSecrets
