@@ -141,7 +141,8 @@ workflows:
       - create-gke-deployment:
           context: jlCloudSecrets
           cluster-name: demo-cluster	
-          requires: gcr-build-and-push
+          requires: 
+            - gcr-build-and-push
       - create-eks-deployment:
           context: jlCloudSecrets
           cluster-name: jlovelace-demo-k8s
