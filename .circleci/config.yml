@@ -97,12 +97,12 @@ jobs:
     steps:
       - checkout
       - gcp-gke/update-kubeconfig-with-credentials:
-        cluster-name: << parameters.cluster-name >>
-        install-kubectl: true
+          cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
       - kubernetes/create-or-update-resource:
-        get-rollout-status: true
-        resource-file-path: k8s/deployment.yml
-        resource-name: deployment/demo-app
+          get-rollout-status: true
+          resource-file-path: k8s/deployment.yml
+          resource-name: deployment/demo-app
   gcr-build-and-push:
     executor: gcp-gcr/default
     steps:
