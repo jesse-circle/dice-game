@@ -158,14 +158,14 @@ workflows:
       - build:
           filters:
             branches:
-              only: /^master$/
+              only: /^(master|staging)$/
           matrix:
             parameters:
               version: ["1.11", "1.12", "1.13", "1.14"]
       - test:
           filters:
             branches:
-              only: /^master$/
+              only: /^(master|staging)$/
           matrix:
             parameters:
               version: ["1.11", "1.12", "1.13"]
@@ -174,7 +174,7 @@ workflows:
       - aws-ecr/build-and-push-image:
           filters:
             branches:
-              only: /^master$/
+              only: /^(master|staging)$/
           attach-workspace: true
           context: jlCloudSecrets
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
@@ -184,7 +184,7 @@ workflows:
       - gcr-build-and-push:
           filters:
             branches:
-              only: /^master$/
+              only: /^(master|staging)$/
           context: jlCloudSecrets
           tag: "latest"
           requires:
@@ -196,7 +196,7 @@ workflows:
       - create-gke-deployment:
           filters:
             branches:
-              only: /^master$/
+              only: /^(master|staging)$/
           namespace: ""
           tag: "latest"
           context: jlCloudSecrets
@@ -210,7 +210,7 @@ workflows:
       - create-eks-deployment:
           filters:
             branches:
-              only: /^master$/
+              only: /^(master|staging)$/
           namespace: ""
           tag: "latest"
           context: jlCloudSecrets
@@ -222,14 +222,14 @@ workflows:
       - build:
           filters:
             branches:
-              ignore: /^master$/
+              ignore: /^(master|staging)$/
           matrix:
             parameters:
               version: ["1.13"]
       - test:
           filters:
             branches:
-              ignore: /^master$/
+              ignore: /^(master|staging)$/
           matrix:
             parameters:
               version: ["1.13"]
@@ -238,7 +238,7 @@ workflows:
       - aws-ecr/build-and-push-image:
           filters:
             branches:
-              ignore: /^master$/
+              ignore: /^(master|staging)$/
           attach-workspace: true
           context: jlCloudSecrets
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
@@ -248,7 +248,7 @@ workflows:
       - gcr-build-and-push:
           filters:
             branches:
-              ignore: /^master$/
+              ignore: /^(master|staging)$/
           context: jlCloudSecrets
           tag: "${CIRCLE_BRANCH}"
           requires:
@@ -256,7 +256,7 @@ workflows:
       - create-gke-deployment:
           filters:
             branches:
-              ignore: /^master$/
+              ignore: /^(master|staging)$/
           context: jlCloudSecrets
           cluster-name: demo-cluster	
           namespace: "${CIRCLE_BRANCH}"
@@ -266,7 +266,7 @@ workflows:
       - create-eks-deployment:
           filters:
             branches:
-              ignore: /^master$/
+              ignore: /^(master|staging)$/
           namespace: "${CIRCLE_BRANCH}"
           tag: "${CIRCLE_BRANCH}"
           context: jlCloudSecrets
