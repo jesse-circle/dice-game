@@ -97,7 +97,7 @@ jobs:
     steps:
       - checkout
       - gcp-gke/update-kubeconfig-with-credentials:
-          cluster-name: << parameters.cluster-name >>
+          cluster: << parameters.cluster-name >>
           install-kubectl: true
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
