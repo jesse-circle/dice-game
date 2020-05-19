@@ -181,6 +181,10 @@ workflows:
           tag: "latest"
           requires:
             - test
+      - hold-gke-deployment:
+          requires:
+            - gcr-build-and-push
+          type: approval
       - create-gke-deployment:
           filters:
             branches:
@@ -191,18 +195,21 @@ workflows:
           context: jlCloudSecrets
           cluster-name: demo-cluster
           requires: 
-            - gcr-build-and-push
+            - hold-gke-deployment
+      - hold-eks-deployment:
+          requires:
+            - aws-ecr/build-and-push-image
+          type: approval
       - create-eks-deployment:
           filters:
             branches:
               only: /^master$/
-          type: approval
           namespace: ""
           tag: "latest"
           context: jlCloudSecrets
           cluster-name: jlovelace-demo-k8s
           requires:
-            - aws-ecr/build-and-push-image
+            - hold-eks-deployment
   feature_branch_flow:
     jobs:
       - build:
