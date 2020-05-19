@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: demo-app
-        image: 241099261431.dkr.ecr.us-east-1.amazonaws.com/jesse-ccits/demo-app:latest
+        image: 241099261431.dkr.ecr.us-east-1.amazonaws.com/jesse-ccits/demo-app:{{TAG}}
         ports:
         - containerPort: 9000
 ---
