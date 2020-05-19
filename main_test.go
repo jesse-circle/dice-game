@@ -13,7 +13,7 @@ import (
 )
 
 func TestIndexHandler(t *testing.T) {
-	req, err := http.NewRequest("GET", "/", nil)
+	req, err := http.NewRequest("GET", "/asdfasd", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
