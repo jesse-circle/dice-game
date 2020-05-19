@@ -96,7 +96,7 @@ jobs:
         type: string
     steps:
       - checkout
-      - gcp-gke/update-kubeconfig-with-authenticator:
+      - gcp-gke/update-kubeconfig-with-credentials:
         cluster-name: << parameters.cluster-name >>
         install-kubectl: true
       - kubernetes/create-or-update-resource:
