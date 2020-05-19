@@ -85,7 +85,7 @@ jobs:
           install-kubectl: true
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
-          resource-file-path: k8s/deployment.yml
+          resource-file-path: k8s/deployment-eks.yml
           resource-name: deployment/demo-app
   create-gke-deployment:
     executor: gcp-gcr/default
@@ -102,7 +102,7 @@ jobs:
           install-kubectl: true
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
-          resource-file-path: k8s/deployment.yml
+          resource-file-path: k8s/deployment-gke.yml
           resource-name: deployment/demo-app
   gcr-build-and-push:
     executor: gcp-gcr/default
