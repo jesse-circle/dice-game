@@ -89,6 +89,11 @@ jobs:
           resource-name: deployment/demo-app
   create-gke-deployment:
     executor: gcp-gcr/default
+    parameters:
+      cluster-name:
+        description: |
+          Name of the GKE cluster
+        type: string
     steps:
       - checkout
       - gcp-gke/update-kubeconfig-with-authenticator:
