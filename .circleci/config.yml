@@ -91,6 +91,10 @@ jobs:
           cluster-name: << parameters.cluster-name >>
           aws-region: "${AWS_REGION}"
           install-kubectl: true
+      - when:
+          condition: << parameters.namespace >>
+          steps:
+            - run: kubectl create namespace << parameters.namespace >>
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
           namespace: << parameters.namespace >>
@@ -118,6 +122,10 @@ jobs:
       - gcp-gke/update-kubeconfig-with-credentials:
           cluster: << parameters.cluster-name >>
           install-kubectl: true
+      - when:
+          condition: << parameters.namespace >>
+          steps:
+            - run: kubectl create namespace << parameters.namespace >>
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
           namespace: << parameters.namespace >>
