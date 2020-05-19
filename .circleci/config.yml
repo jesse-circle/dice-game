@@ -21,7 +21,7 @@ jobs:
       - run: go get -v -t -d ./...
       - run: mkdir -p workspace/<< parameters.version >>
       - run: go test -c -o workspace/<< parameters.version >>/test
-      - run: go build -o workspace/<< parameters.version >>/circleci
+      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o workspace/<< parameters.version >>/circleci
       - run: cp -r templates workspace/<< parameters.version >>/
       - persist_to_workspace:
           root: workspace
@@ -96,11 +96,13 @@ workflows:
           - build
       - aws-ecr/build-and-push-image:
           attach-workspace: true
+          context: jlCloudSecrets
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           tag: "latest"
           requires:
           - test
       - create-deployment:
+          context: jlCloudSecrets
           cluster-name: jlovelace-demo-k8s
           requires:
             - aws-ecr/build-and-push-image
