@@ -76,6 +76,10 @@ jobs:
         description: |
           Name of the EKS cluster
         type: string
+      namespace:
+        description: |
+          The deployment namespace.
+        type: string
     steps:
       - checkout
       - aws-eks/update-kubeconfig-with-authenticator:
@@ -84,6 +88,7 @@ jobs:
           install-kubectl: true
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
+          namespace: << parameters.namespace >>
           resource-file-path: k8s/deployment-eks.yml
           resource-name: deployment/demo-app
   create-gke-deployment:
@@ -93,6 +98,10 @@ jobs:
         description: |
           Name of the GKE cluster
         type: string
+      namespace:
+        description: |
+          The deployment namespace.
+        type: string
     steps:
       - checkout
       - gcp-gcr/gcr-auth
@@ -101,6 +110,7 @@ jobs:
           install-kubectl: true
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
+          namespace: << parameters.namespace >>
           resource-file-path: k8s/deployment-gke.yml
           resource-name: deployment/demo-app
   gcr-build-and-push:
@@ -120,19 +130,28 @@ jobs:
           registry-url: gcr.io
 workflows:
   version: 2
-  test_and_deploy:
+  production_flow:
     jobs:
       - build:
+          filters:
+            branches:
+              only: /^master$/
           matrix:
             parameters:
               version: ["1.11", "1.12", "1.13", "1.14"]
       - test:
+          filters:
+            branches:
+              only: /^master$/
           matrix:
             parameters:
               version: ["1.11", "1.12", "1.13"]
           requires:
             - build
       - aws-ecr/build-and-push-image:
+          filters:
+            branches:
+              only: /^master$/
           attach-workspace: true
           context: jlCloudSecrets
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
@@ -140,23 +159,85 @@ workflows:
           requires:
             - test
       - gcr-build-and-push:
+          filters:
+            branches:
+              only: /^master$/
           context: jlCloudSecrets
           requires:
             - test
       - create-gke-deployment:
+          filters:
+            branches:
+              only: /^master$/
+          type: approval
+          namespace: ""
           context: jlCloudSecrets
           cluster-name: demo-cluster	
           requires: 
             - gcr-build-and-push
       - create-eks-deployment:
+          filters:
+            branches:
+              only: /^master$/
+          type: approval
+          namespace: ""
           context: jlCloudSecrets
           cluster-name: jlovelace-demo-k8s
           requires:
             - aws-ecr/build-and-push-image
-      #- gcp-gcr/build-and-push-image:
-      #    image: my-image
-      #    registry-url: us.gcr.io
-      #- request-testing:
-      #  type: approval
-      #  requires:
-      #    - build
+  feature_branch_flow:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore: /^master$/
+          matrix:
+            parameters:
+              version: ["1.13"]
+      - test:
+          filters:
+            branches:
+              ignore: /^master$/
+          matrix:
+            parameters:
+              version: ["1.13"]
+          requires:
+            - build
+      - aws-ecr/build-and-push-image:
+          filters:
+            branches:
+              ignore: /^master$/
+          attach-workspace: true
+          context: jlCloudSecrets
+          repo: "${AWS_RESOURCE_NAME_PREFIX}"
+          tag: "latest"
+          requires:
+            - test
+      - gcr-build-and-push:
+          filters:
+            branches:
+              ignore: /^master$/
+          context: jlCloudSecrets
+          requires:
+            - test
+      - create-gke-deployment:
+          filters:
+            branches:
+              ignore: /^master$/
+          type: approval
+          context: jlCloudSecrets
+          cluster-name: demo-cluster	
+          namespace: "${CIRCLE_BRANCH}"
+          requires: 
+            - gcr-build-and-push
+      - create-eks-deployment:
+          filters:
+            branches:
+              ignore: /^master$/
+          type: approval
+          namespace: "${CIRCLE_BRANCH}"
+          context: jlCloudSecrets
+          cluster-name: jlovelace-demo-k8s
+          requires:
+            - aws-ecr/build-and-push-image
+
