@@ -15,7 +15,6 @@ jobs:
         type: string
     docker:
       - image: circleci/golang:<< parameters.version >>
-    working_directory: /go/src/github.com/mentat/circle-demo-go
     steps:
       - restore_cache:
           keys:
