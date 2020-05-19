@@ -87,6 +87,20 @@ jobs:
           get-rollout-status: true
           resource-file-path: k8s/deployment.yml
           resource-name: deployment/demo-app
+  gcr-build-and-push:
+    executor: gcp-gcr/default
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /go/src/github.com/mentat/circle-demo-go
+      - run: ls
+      - gcp-gcr/gcr-auth
+      - gcp-gcr/build-image:
+          image: demo-app
+          registry-url: gcr.io
+      - gcp-gcr/push-image:
+          image: demo-app
+          registry-url: gcr.io
 workflows:
   version: 2
   test_and_deploy:
@@ -100,15 +114,19 @@ workflows:
             parameters:
               version: ["1.11", "1.12", "1.13"]
           requires:
-          - build
+            - build
       - aws-ecr/build-and-push-image:
           attach-workspace: true
           context: jlCloudSecrets
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           tag: "latest"
           requires:
-          - test
-      - create-deployment:
+            - test
+      - gcr-build-and-push:
+          context: jlCloudSecrets
+          requires:
+            - test
+      - create-eks-deployment:
           context: jlCloudSecrets
           cluster-name: jlovelace-demo-k8s
           requires:

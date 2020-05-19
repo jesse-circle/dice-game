@@ -23,6 +23,7 @@ kind: Service
 metadata:
   name: demo-service
 spec:
+  type: LoadBalancer
   selector:
     app: demo-app
   ports:
