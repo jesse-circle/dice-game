@@ -17,12 +17,19 @@ jobs:
       - image: circleci/golang:<< parameters.version >>
     working_directory: /go/src/github.com/mentat/circle-demo-go
     steps:
+      - restore_cache:
+          keys:
+            - go-mod-v1-{{ checksum "go.sum" }}
       - checkout
       - run: go get -v -t -d ./...
       - run: mkdir -p workspace/<< parameters.version >>
       - run: go test -c -o workspace/<< parameters.version >>/test
       - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o workspace/<< parameters.version >>/circleci
       - run: cp -r templates workspace/<< parameters.version >>/
+      - save_cache:
+          key: go-mod-v1-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg/mod"
       - persist_to_workspace:
           root: workspace
           paths:
@@ -47,7 +54,7 @@ jobs:
         type: string
     docker:
       - image: chromedp/headless-shell:latest
-    #resource_class: large
+    resource_class: large
     working_directory: /go/src/github.com/mentat/circle-demo-go
     steps:
       - run: apt-get update && apt-get -y install ca-certificates

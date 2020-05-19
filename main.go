@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/gorilla/mux"
 )
 
 var indexTmpl = template.Must(template.ParseFiles("templates/index.html"))
@@ -23,6 +25,9 @@ func main() {
 		log.Printf("Defaulting to port %s", port)
 	}
 
-	http.HandleFunc("/", HandleGet)
+	r := mux.NewRouter()
+	r.HandleFunc("/", HandleGet)
+	http.Handle("/", r)
+
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
