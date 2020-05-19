@@ -187,7 +187,7 @@ workflows:
               only: /^master$/
           type: approval
           namespace: ""
-          tag: "latest"	
+          tag: "latest"
           context: jlCloudSecrets
           cluster-name: demo-cluster
           requires: 
