@@ -96,6 +96,7 @@ jobs:
         type: string
     steps:
       - checkout
+      - gcp-gcr/gcr-auth
       - gcp-gke/update-kubeconfig-with-credentials:
           cluster: << parameters.cluster-name >>
           install-kubectl: true
