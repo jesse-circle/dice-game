@@ -243,7 +243,6 @@ workflows:
           filters:
             branches:
               ignore: /^master$/
-          type: approval
           context: jlCloudSecrets
           cluster-name: demo-cluster	
           namespace: "${CIRCLE_BRANCH}"
@@ -254,7 +253,6 @@ workflows:
           filters:
             branches:
               ignore: /^master$/
-          type: approval
           namespace: "${CIRCLE_BRANCH}"
           tag: "${CIRCLE_BRANCH}"
           context: jlCloudSecrets
