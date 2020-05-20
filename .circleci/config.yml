@@ -175,15 +175,15 @@ jobs:
     steps:
       - setup_remote_docker
       - checkout
+      - digitalocean/install
+      - digitalocean/initialize:
+          digitalocean-access-token: DIGITALOCEAN_ACCESS_TOKEN
+      - run: doctl registry login
       - docker/check
       - docker/build:
           image: demo-app
           registry: registry.digitalocean.com/circle-demo-deploy
           tag: << parameters.tag >>
-      - digitalocean/install
-      - digitalocean/initialize:
-          digitalocean-access-token: DIGITALOCEAN_ACCESS_TOKEN
-      - run: doctl registry login
       - docker/push:
           image: demo-app
           registry: registry.digitalocean.com/circle-demo-deploy
