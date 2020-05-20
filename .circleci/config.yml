@@ -163,6 +163,7 @@ jobs:
     steps:
       - checkout
       - run: sed "s/{{TAG}}/<< parameters.tag >>/g" k8s/deployment-do.yml > k8s/deployment.yml
+      - kubernetes/install-kubectl
       - digitalocean/install
       - digitalocean/initialize:
           digitalocean-access-token: DIGITALOCEAN_ACCESS_TOKEN
