@@ -230,14 +230,15 @@ workflows:
               ignore: /^(master|staging)$/
           matrix:
             parameters:
-              version: ["1.13"]
+              gover: ["1.13"]
       - test:
           filters:
             branches:
               ignore: /^(master|staging)$/
           matrix:
             parameters:
-              version: ["1.13"]
+              gover: ["1.13"]
+              chromever: ["latest", "83.0.4103.61", "82.0.4085.12"]
           requires:
             - build
       - aws-ecr/build-and-push-image:
