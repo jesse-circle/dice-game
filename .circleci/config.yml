@@ -98,7 +98,7 @@ jobs:
       - when:
           condition: << parameters.namespace >>
           steps:
-            - run: kubectl create namespace << parameters.namespace >>
+            - run: kubectl create namespace << parameters.namespace >> || echo "Namespace already exists."
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
           namespace: << parameters.namespace >>
@@ -238,7 +238,7 @@ workflows:
           matrix:
             parameters:
               gover: ["1.13"]
-              chromever: ["latest", "83.0.4103.61", "82.0.4085.12"]
+              chromever: ["latest"]
           requires:
             - build
       - aws-ecr/build-and-push-image:
