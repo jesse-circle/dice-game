@@ -183,9 +183,9 @@ jobs:
         - digitalocean/install_and_initialize_cli
         - run: doctl registry login
         - docker/push:
-          image: demo-app
-          registry: registry.digitalocean.com/circle-demo-deploy
-          tag: << parameters.tag >>
+            image: demo-app
+            registry: registry.digitalocean.com/circle-demo-deploy
+            tag: << parameters.tag >>
 workflows:
   version: 2
   production_flow:
