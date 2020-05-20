@@ -90,9 +90,14 @@ jobs:
         description: |
           The deployment namespace.
         type: string
+      image:
+        description: |
+          The deployment image.
+        type: string
     steps:
       - checkout
-      - run: sed "s/{{TAG}}/<< parameters.tag >>/g" k8s/deployment-eks.yml > k8s/deployment.yml
+      - run: sed "s/{{IMAGE}}/<< parameters.image >>/g" k8s/deployment-eks.yml > k8s/deployment.yml
+      - run: sed "s/{{TAG}}/<< parameters.tag >>/g" k8s/deployment.yml > k8s/deployment.yml
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
           aws-region: "${AWS_REGION}"
@@ -125,9 +130,14 @@ jobs:
         description: |
           The deployment namespace.
         type: string
+      image:
+        description: |
+          The deployment image.
+        type: string
     steps:
       - checkout
-      - run: sed "s/{{TAG}}/<< parameters.tag >>/g" k8s/deployment-gke.yml > k8s/deployment.yml
+      - run: sed "s/{{IMAGE}}/<< parameters.image >>/g" k8s/deployment-gke.yml > k8s/deployment.yml
+      - run: sed "s/{{TAG}}/<< parameters.tag >>/g" k8s/deployment.yml > k8s/deployment.yml
       - gcp-gcr/gcr-auth
       - gcp-gke/update-kubeconfig-with-credentials:
           cluster: << parameters.cluster-name >>
@@ -160,9 +170,14 @@ jobs:
         description: |
           The deployment namespace.
         type: string
+      image:
+        description: |
+          The deployment image.
+        type: string
     steps:
       - checkout
-      - run: sed "s/{{TAG}}/<< parameters.tag >>/g" k8s/deployment-do.yml > k8s/deployment.yml
+      - run: sed "s/{{IMAGE}}/<< parameters.image >>/g" k8s/deployment-do.yml > k8s/deployment.yml
+      - run: sed "s/{{TAG}}/<< parameters.tag >>/g" k8s/deployment.yml > k8s/deployment.yml
       - kubernetes/install-kubectl
       - digitalocean/install
       - digitalocean/initialize:
@@ -191,25 +206,43 @@ jobs:
         description: |
           Tag to use for image.
         type: string
+      registry:
+        description: |
+          Registry to use for image.
+        type: string
+        default: gcr.io
+      image:
+        description: |
+          Image name.
+        type: string
     steps:
       - checkout
       - attach_workspace:
           at: /home/circleci/project
       - gcp-gcr/gcr-auth
       - gcp-gcr/build-image:
-          image: demo-app
+          image: << parameters.image >>
           tag: << parameters.tag >>
-          registry-url: gcr.io
+          registry-url: << parameters.registry >>
       - gcp-gcr/push-image:
           tag: << parameters.tag >>
-          image: demo-app
-          registry-url: gcr.io
+          image: << parameters.image >>
+          registry-url: << parameters.registry >>
   do-build-and-push:
     executor: docker/docker
     parameters:
       tag:
         description: |
           Tag to use for image.
+        type: string
+      registry:
+        description: |
+          Registry to use for image.
+        type: string
+        default: registry.digitalocean.com
+      image:
+        description: |
+          Image name.
         type: string
     steps:
       - setup_remote_docker
@@ -221,12 +254,12 @@ jobs:
           digitalocean-access-token: DIGITALOCEAN_ACCESS_TOKEN
       - run: doctl registry login
       - docker/build:
-          image: demo-app
-          registry: registry.digitalocean.com/circle-demo-deploy
+          image: << parameters.image >>
+          registry: << parameters.registry >>
           tag: << parameters.tag >>
       - docker/push:
-          image: demo-app
-          registry: registry.digitalocean.com/circle-demo-deploy
+          image: << parameters.image >>
+          registry: << parameters.registry >>
           tag: << parameters.tag >>
 workflows:
   version: 2
@@ -255,7 +288,7 @@ workflows:
               only: /^(master|staging)$/
           attach-workspace: true
           context: jlCloudSecrets
-          repo: "${AWS_RESOURCE_NAME_PREFIX}"
+          repo: jesse-ccits/demo-app
           tag: $CIRCLE_SHA1
           requires:
             - test
@@ -265,6 +298,7 @@ workflows:
               only: /^(master|staging)$/
           context: jlCloudSecrets
           tag: $CIRCLE_SHA1
+          image: demo-app
           requires:
             - test
       - do-build-and-push:
@@ -273,6 +307,7 @@ workflows:
               only: /^(master|staging)$/
           context: jlDigitalOcean
           tag: $CIRCLE_SHA1
+          image: circle-demo-deploy/demo-app
           requires:
             - test
       - hold-gke-deployment:
@@ -342,7 +377,7 @@ workflows:
               ignore: /^(master|staging)$/
           attach-workspace: true
           context: jlCloudSecrets
-          repo: "${AWS_RESOURCE_NAME_PREFIX}"
+          repo: jesse-ccits/demo-app
           tag: $CIRCLE_SHA1
           requires:
             - test
@@ -352,6 +387,7 @@ workflows:
               ignore: /^(master|staging)$/
           context: jlCloudSecrets
           tag: $CIRCLE_SHA1
+          image: demo-app
           requires:
             - test
       - create-gke-deployment:
@@ -380,6 +416,7 @@ workflows:
               only: /^(master|staging)$/
           context: jlDigitalOcean
           tag: $CIRCLE_SHA1
+          image: circle-demo-deploy/demo-app
           requires:
             - test
       - hold-do-deployment:
