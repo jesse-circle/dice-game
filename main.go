@@ -17,6 +17,17 @@ func HandleGet(w http.ResponseWriter, r *http.Request) {
 	indexTmpl.Execute(w, nil)
 }
 
+// App - struct to hold router for testing and production
+type App struct {
+	Router *mux.Router
+}
+
+// Init - load routes into app
+func (a *App) Init() {
+	a.Router = mux.NewRouter()
+	a.Router.HandleFunc("/", HandleGet).Methods("GET")
+}
+
 func main() {
 
 	port := os.Getenv("PORT")
@@ -25,9 +36,10 @@ func main() {
 		log.Printf("Defaulting to port %s", port)
 	}
 
-	r := mux.NewRouter()
-	r.HandleFunc("/", HandleGet).Methods("GET")
-	http.Handle("/", r)
+	a := App{}
+	a.Init()
+
+	http.Handle("/", a.Router)
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
