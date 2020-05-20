@@ -145,10 +145,44 @@ jobs:
           condition: << parameters.namespace >>
           steps:    
             - run: kubectl -n << parameters.namespace >> get svc
+  create-do-deployment:
+    executor: gcp-gcr/default
+    parameters:
+      tag:
+        description: |
+          Tag to use for image.
+        type: string
+      cluster-name:
+        description: |
+          Name of the GKE cluster
+        type: string
+      namespace:
+        description: |
+          The deployment namespace.
+        type: string
+    steps:
+      - checkout
+      - run: sed "s/{{TAG}}/<< parameters.tag >>/g" k8s/deployment-do.yml > k8s/deployment.yml
+      - digitalocean/install
+      - digitalocean/initialize:
+          digitalocean-access-token: DIGITALOCEAN_ACCESS_TOKEN
+      - run: doctl kubernetes cluster kubeconfig save << parameters.cluster_name >>
+      - when:
+          condition: << parameters.namespace >>
+          steps:
+            - run: kubectl create namespace << parameters.namespace >> || echo "Namespace already exists."
+      - kubernetes/create-or-update-resource:
+          get-rollout-status: true
+          namespace: << parameters.namespace >>
+          resource-file-path: k8s/deployment.yml
+          resource-name: deployment/demo-app
+      - when:
+          condition: << parameters.namespace >>
+          steps:    
+            - run: kubectl -n << parameters.namespace >> get svc
+  
   gcr-build-and-push:
-    executor: 
-      name: gcp-gcr/default
-      size: xlarge
+    executor: gcp-gcr/default
     parameters:
       tag:
         description: |
@@ -168,9 +202,7 @@ jobs:
           image: demo-app
           registry-url: gcr.io
   do-build-and-push:
-    executor: 
-      name: docker/docker
-      size: xlarge
+    executor: docker/docker
     parameters:
       tag:
         description: |
@@ -268,6 +300,20 @@ workflows:
           cluster-name: jlovelace-demo-k8s
           requires:
             - hold-eks-deployment
+      - hold-do-deployment:
+          requires:
+            - do-build-and-push
+          type: approval
+      - create-do-deployment:
+          filters:
+            branches:
+              only: /^(master|staging)$/
+          namespace: ""
+          tag: $CIRCLE_SHA1
+          context: jlDigitalOcean
+          cluster-name: circle-ci-cluster
+          requires: 
+            - hold-do-deployment
   feature_branch_flow:
     jobs:
       - build:
@@ -325,4 +371,26 @@ workflows:
           cluster-name: jlovelace-demo-k8s
           requires:
             - aws-ecr/build-and-push-image
+      - do-build-and-push:
+        filters:
+          branches:
+            only: /^(master|staging)$/
+        context: jlDigitalOcean
+        tag: $CIRCLE_SHA1
+        requires:
+          - test
+      - hold-do-deployment:
+          requires:
+            - do-build-and-push
+          type: approval
+      - create-do-deployment:
+          filters:
+            branches:
+              only: /^(master|staging)$/
+          namespace: ""
+          tag: $CIRCLE_SHA1
+          context: jlDigitalOcean
+          cluster-name: circle-ci-cluster
+          requires: 
+            - hold-do-deployment
 
