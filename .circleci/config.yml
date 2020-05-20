@@ -177,7 +177,7 @@ workflows:
           attach-workspace: true
           context: jlCloudSecrets
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
-          tag: "latest"
+          tag: $CIRCLE_SHA1
           requires:
             - test
       - gcr-build-and-push:
@@ -185,7 +185,7 @@ workflows:
             branches:
               only: /^(master|staging)$/
           context: jlCloudSecrets
-          tag: "latest"
+          tag: $CIRCLE_SHA1
           requires:
             - test
       - hold-gke-deployment:
@@ -197,7 +197,7 @@ workflows:
             branches:
               only: /^(master|staging)$/
           namespace: ""
-          tag: "latest"
+          tag: $CIRCLE_SHA1
           context: jlCloudSecrets
           cluster-name: demo-cluster
           requires: 
@@ -211,7 +211,7 @@ workflows:
             branches:
               only: /^(master|staging)$/
           namespace: ""
-          tag: "latest"
+          tag: $CIRCLE_SHA1
           context: jlCloudSecrets
           cluster-name: jlovelace-demo-k8s
           requires:
