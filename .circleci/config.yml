@@ -179,7 +179,6 @@ jobs:
       - digitalocean/initialize:
           digitalocean-access-token: DIGITALOCEAN_ACCESS_TOKEN
       - run: doctl registry login
-      - docker/check
       - docker/build:
           image: demo-app
           registry: registry.digitalocean.com/circle-demo-deploy
