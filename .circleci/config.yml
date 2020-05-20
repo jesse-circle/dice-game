@@ -175,6 +175,8 @@ jobs:
     steps:
       - setup_remote_docker
       - checkout
+      - attach_workspace:
+          at: /home/circleci/project
       - digitalocean/install
       - digitalocean/initialize:
           digitalocean-access-token: DIGITALOCEAN_ACCESS_TOKEN
