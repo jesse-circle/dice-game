@@ -182,7 +182,7 @@ jobs:
           tag: << parameters.tag >>
       - digitalocean/install
       - digitalocean/initialize:
-          digitalocean-access-token: $DIGITALOCEAN_ACCESS_TOKEN
+          digitalocean-access-token: DIGITALOCEAN_ACCESS_TOKEN
       - run: doctl registry login
       - docker/push:
           image: demo-app
