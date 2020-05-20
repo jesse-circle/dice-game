@@ -13,14 +13,18 @@ import (
 )
 
 func TestIndexHandler(t *testing.T) {
-	req, err := http.NewRequest("POST", "/", nil)
+
+	a := App{}
+	a.Init()
+
+	req, err := http.NewRequest("GET", "/", nil)
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(HandleGet)
-	handler.ServeHTTP(rr, req)
+	a.Router.ServeHTTP(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf(

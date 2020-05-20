@@ -34,5 +34,5 @@ go build
 
 # Kubernetes Endpoints
 
- * http://prod.google.knobs.io/
- * http://prod.aws.knobs.io/
+ * http://google.knobs.io/
+ * http://aws.knobs.io/

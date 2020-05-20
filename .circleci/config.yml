@@ -98,12 +98,16 @@ jobs:
       - when:
           condition: << parameters.namespace >>
           steps:
-            - run: kubectl create namespace << parameters.namespace >>
+            - run: kubectl create namespace << parameters.namespace >> || echo "Namespace already exists."
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
           namespace: << parameters.namespace >>
           resource-file-path: k8s/deployment.yml
           resource-name: deployment/demo-app
+      - when:
+          condition: << parameters.namespace >>
+          steps:    
+            - run: kubectl -n << parameters.namespace >> get svc
   create-gke-deployment:
     executor: gcp-gcr/default
     parameters:
@@ -129,12 +133,16 @@ jobs:
       - when:
           condition: << parameters.namespace >>
           steps:
-            - run: kubectl create namespace << parameters.namespace >>
+            - run: kubectl create namespace << parameters.namespace >> || echo "Namespace already exists."
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
           namespace: << parameters.namespace >>
           resource-file-path: k8s/deployment.yml
           resource-name: deployment/demo-app
+      - when:
+          condition: << parameters.namespace >>
+          steps:    
+            - run: kubectl -n << parameters.namespace >> get svc
   gcr-build-and-push:
     executor: gcp-gcr/default
     parameters:
@@ -238,7 +246,7 @@ workflows:
           matrix:
             parameters:
               gover: ["1.13"]
-              chromever: ["latest", "83.0.4103.61", "82.0.4085.12"]
+              chromever: ["latest"]
           requires:
             - build
       - aws-ecr/build-and-push-image:
