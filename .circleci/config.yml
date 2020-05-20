@@ -166,7 +166,7 @@ jobs:
       - digitalocean/install
       - digitalocean/initialize:
           digitalocean-access-token: DIGITALOCEAN_ACCESS_TOKEN
-      - run: doctl kubernetes cluster kubeconfig save << parameters.cluster_name >>
+      - run: doctl kubernetes cluster kubeconfig save << parameters.cluster-name >>
       - when:
           condition: << parameters.namespace >>
           steps:
