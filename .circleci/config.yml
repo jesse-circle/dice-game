@@ -6,6 +6,8 @@ orbs:
   aws-ecr: circleci/aws-ecr@6.8.2
   gcp-gke: circleci/gcp-gke@1.0.4
   aws-eks: circleci/aws-eks@0.2.7
+  digitalocean: digitalocean/cli@0.1.1
+  docker: circleci/docker@1.0.1
   win: circleci/windows@2.2.0 
 
 jobs:
@@ -163,6 +165,27 @@ jobs:
           tag: << parameters.tag >>
           image: demo-app
           registry-url: gcr.io
+    do-build-and-push:
+      executor: docker/docker
+      parameters:
+        tag:
+          description: |
+            Tag to use for image.
+          type: string
+      steps:
+        - setup_remote_docker
+        - checkout
+        - docker/check
+        - docker/build:
+            image: demo-app
+            registry: registry.digitalocean.com/circle-demo-deploy
+            tag: << parameters.tag >>
+        - digitalocean/install_and_initialize_cli
+        - run: doctl registry login
+        - docker/push:
+          image: demo-app
+          registry: registry.digitalocean.com/circle-demo-deploy
+          tag: << parameters.tag >>
 workflows:
   version: 2
   production_flow:
@@ -199,6 +222,14 @@ workflows:
             branches:
               only: /^(master|staging)$/
           context: jlCloudSecrets
+          tag: $CIRCLE_SHA1
+          requires:
+            - test
+      - do-build-and-push:
+          filters:
+            branches:
+              only: /^(master|staging)$/
+          context: jlDigitalOcean
           tag: $CIRCLE_SHA1
           requires:
             - test
