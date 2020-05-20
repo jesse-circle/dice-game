@@ -11,19 +11,20 @@ orbs:
 jobs:
   build:
     parameters:
-      version: 
+      gover: 
+        description: The version of the Go compiler to use.
         type: string
     docker:
-      - image: circleci/golang:<< parameters.version >>
+      - image: circleci/golang:<< parameters.gover >>
     steps:
       - checkout
       - restore_cache:
           keys:
             - go-mod-v1-{{ checksum "go.sum" }}
-      - run: mkdir -p workspace/<< parameters.version >>
-      - run: go test -c -o workspace/<< parameters.version >>/test
-      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o workspace/<< parameters.version >>/circleci
-      - run: cp -r templates workspace/<< parameters.version >>/
+      - run: mkdir -p workspace/<< parameters.gover >>
+      - run: go test -c -o workspace/<< parameters.gover >>/test
+      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o workspace/<< parameters.gover >>/circleci
+      - run: cp -r templates workspace/<< parameters.gover >>/
       - save_cache:
           key: go-mod-v1-{{ checksum "go.sum" }}
           paths:
@@ -31,9 +32,9 @@ jobs:
       - persist_to_workspace:
           root: workspace
           paths:
-            - << parameters.version >>/test
-            - << parameters.version >>/circleci
-            - << parameters.version >>/templates
+            - << parameters.gover >>/test
+            - << parameters.gover >>/circleci
+            - << parameters.gover >>/templates
   build-windows:
     executor:
       name: win/default 
@@ -48,17 +49,21 @@ jobs:
           destination: circleci
   test:
     parameters:
-      version: 
+      gover: 
+        description: The version of the Go compiler to use.
+        type: string
+      chromever: 
+        description: The version of the Chrome browser to use.
         type: string
     docker:
-      - image: chromedp/headless-shell:latest
+      - image: chromedp/headless-shell:<< parameters.chromever >>
     resource_class: large
     working_directory: /go/src/github.com/mentat/circle-demo-go
     steps:
       - run: apt-get update && apt-get -y install ca-certificates
       - attach_workspace:
           at: /tmp/workspace
-      - run: cd /tmp/workspace/<< parameters.version >> && ./test
+      - run: cd /tmp/workspace/<< parameters.gover >> && ./test
   security:
     docker:
       - image: chromedp/headless-shell:latest
@@ -67,7 +72,7 @@ jobs:
       - run: apt-get update && apt-get -y install ca-certificates
       - attach_workspace:
           at: /tmp/workspace
-      - run: cd /tmp/workspace/<< parameters.version >> && ./test
+      - run: cd /tmp/workspace/<< parameters.gover >> && ./test
   create-eks-deployment:
     executor: aws-eks/python3
     parameters:
@@ -160,14 +165,15 @@ workflows:
               only: /^(master|staging)$/
           matrix:
             parameters:
-              version: ["1.11", "1.12", "1.13", "1.14"]
+              gover: ["1.11", "1.12", "1.13", "1.14"]
       - test:
           filters:
             branches:
               only: /^(master|staging)$/
           matrix:
             parameters:
-              version: ["1.11", "1.12", "1.13"]
+              gover: ["1.11", "1.12", "1.13"]
+              chromever: ["latest", "83.0.4103.61", "82.0.4085.12"]
           requires:
             - build
       - aws-ecr/build-and-push-image:
