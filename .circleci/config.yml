@@ -104,6 +104,10 @@ jobs:
           namespace: << parameters.namespace >>
           resource-file-path: k8s/deployment.yml
           resource-name: deployment/demo-app
+      - when:
+          condition: << parameters.namespace >>
+          steps:    
+            - run: kubectl -n << parameters.namespace >> get svc
   create-gke-deployment:
     executor: gcp-gcr/default
     parameters:
@@ -135,6 +139,10 @@ jobs:
           namespace: << parameters.namespace >>
           resource-file-path: k8s/deployment.yml
           resource-name: deployment/demo-app
+      - when:
+          condition: << parameters.namespace >>
+          steps:    
+            - run: kubectl -n << parameters.namespace >> get svc
   gcr-build-and-push:
     executor: gcp-gcr/default
     parameters:
