@@ -116,7 +116,7 @@ jobs:
         type: string
     steps:
       - checkout
-      - run: sed 's/{{TAG}}/<< parameters.tag >>/g' k8s/deployment-gke.yml > k8s/deployment.yml
+      - run: sed "s/{{TAG}}/<< parameters.tag >>/g" k8s/deployment-gke.yml > k8s/deployment.yml
       - gcp-gcr/gcr-auth
       - gcp-gke/update-kubeconfig-with-credentials:
           cluster: << parameters.cluster-name >>
@@ -241,7 +241,7 @@ workflows:
           attach-workspace: true
           context: jlCloudSecrets
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
-          tag: $CIRCLE_BRANCH
+          tag: $CIRCLE_SHA1
           requires:
             - test
       - gcr-build-and-push:
@@ -249,7 +249,7 @@ workflows:
             branches:
               ignore: /^(master|staging)$/
           context: jlCloudSecrets
-          tag: $CIRCLE_BRANCH
+          tag: $CIRCLE_SHA1
           requires:
             - test
       - create-gke-deployment:
@@ -259,7 +259,7 @@ workflows:
           context: jlCloudSecrets
           cluster-name: demo-cluster	
           namespace: $CIRCLE_BRANCH
-          tag: $CIRCLE_BRANCH
+          tag: $CIRCLE_SHA1
           requires: 
             - gcr-build-and-push
       - create-eks-deployment:
@@ -267,7 +267,7 @@ workflows:
             branches:
               ignore: /^(master|staging)$/
           namespace: "${CIRCLE_BRANCH}"
-          tag: $CIRCLE_BRANCH
+          tag: $CIRCLE_SHA1
           context: jlCloudSecrets
           cluster-name: jlovelace-demo-k8s
           requires:
