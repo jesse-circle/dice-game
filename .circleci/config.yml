@@ -176,8 +176,8 @@ jobs:
         type: string
     steps:
       - checkout
-      - run: sed "s/{{IMAGE}}/<< parameters.container >>/g" k8s/deployment-do.yml > k8s/deployment.yml
-      - run: sed "s/{{TAG}}/<< parameters.tag >>/g" k8s/deployment.yml > k8s/deployment.yml
+      - run: export IMAGE="<< parameters.container >>" && export TAG="<< parameters.tag >>""
+      - run: cat k8s/deployment-do.yml | envsubst > k8s/deployment.yml
       - kubernetes/install-kubectl
       - digitalocean/install
       - digitalocean/initialize:
@@ -288,7 +288,7 @@ workflows:
               only: /^(master|staging)$/
           attach-workspace: true
           context: jlCloudSecrets
-          repo: jesse-ccits/demo-app
+          repo: demo-app
           tag: $CIRCLE_SHA1
           requires:
             - test
@@ -380,7 +380,7 @@ workflows:
               ignore: /^(master|staging)$/
           attach-workspace: true
           context: jlCloudSecrets
-          repo: jesse-ccits/demo-app
+          repo: demo-app
           tag: $CIRCLE_SHA1
           requires:
             - test
