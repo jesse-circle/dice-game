@@ -32,11 +32,7 @@ go build
 ./circleci
 ```
 
-# Deploying to AppEngine
+# Kubernetes Endpoints
 
-Deploying requires a valid Google Cloud account to deploy to.
-
-```
-gcloud auth login
-gcloud app deploy --project=<your project here> --promote app.yaml
-```
+ * http://prod.google.knobs.io/
+ * http://prod.aws.knobs.io/

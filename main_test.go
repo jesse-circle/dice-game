@@ -13,7 +13,11 @@ import (
 )
 
 func TestIndexHandler(t *testing.T) {
+<<<<<<< HEAD
 	req, err := http.NewRequest("GET", "/asdfasd", nil)
+=======
+	req, err := http.NewRequest("POST", "/", nil)
+>>>>>>> master
 	if err != nil {
 		t.Fatal(err)
 	}

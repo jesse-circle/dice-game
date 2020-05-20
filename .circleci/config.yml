@@ -11,20 +11,20 @@ orbs:
 jobs:
   build:
     parameters:
-      version: 
+      gover: 
+        description: The version of the Go compiler to use.
         type: string
     docker:
-      - image: circleci/golang:<< parameters.version >>
+      - image: circleci/golang:<< parameters.gover >>
     steps:
+      - checkout
       - restore_cache:
           keys:
             - go-mod-v1-{{ checksum "go.sum" }}
-      - checkout
-      - run: go get -v -t -d ./...
-      - run: mkdir -p workspace/<< parameters.version >>
-      - run: go test -c -o workspace/<< parameters.version >>/test
-      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o workspace/<< parameters.version >>/circleci
-      - run: cp -r templates workspace/<< parameters.version >>/
+      - run: mkdir -p workspace/<< parameters.gover >>
+      - run: go test -c -o workspace/<< parameters.gover >>/test
+      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o workspace/<< parameters.gover >>/circleci
+      - run: cp -r templates workspace/<< parameters.gover >>/
       - save_cache:
           key: go-mod-v1-{{ checksum "go.sum" }}
           paths:
@@ -32,9 +32,9 @@ jobs:
       - persist_to_workspace:
           root: workspace
           paths:
-            - << parameters.version >>/test
-            - << parameters.version >>/circleci
-            - << parameters.version >>/templates
+            - << parameters.gover >>/test
+            - << parameters.gover >>/circleci
+            - << parameters.gover >>/templates
   build-windows:
     executor:
       name: win/default 
@@ -49,17 +49,21 @@ jobs:
           destination: circleci
   test:
     parameters:
-      version: 
+      gover: 
+        description: The version of the Go compiler to use.
+        type: string
+      chromever: 
+        description: The version of the Chrome browser to use.
         type: string
     docker:
-      - image: chromedp/headless-shell:latest
+      - image: chromedp/headless-shell:<< parameters.chromever >>
     resource_class: large
     working_directory: /go/src/github.com/mentat/circle-demo-go
     steps:
       - run: apt-get update && apt-get -y install ca-certificates
       - attach_workspace:
           at: /tmp/workspace
-      - run: cd /tmp/workspace/<< parameters.version >> && ./test
+      - run: cd /tmp/workspace/<< parameters.gover >> && ./test
   security:
     docker:
       - image: chromedp/headless-shell:latest
@@ -68,7 +72,7 @@ jobs:
       - run: apt-get update && apt-get -y install ca-certificates
       - attach_workspace:
           at: /tmp/workspace
-      - run: cd /tmp/workspace/<< parameters.version >> && ./test
+      - run: cd /tmp/workspace/<< parameters.gover >> && ./test
   create-eks-deployment:
     executor: aws-eks/python3
     parameters:
@@ -86,7 +90,7 @@ jobs:
         type: string
     steps:
       - checkout
-      - run: sed 's/{{TAG}}/<< parameters.tag >>/g' k8s/deployment-eks.yml > k8s/deployment.yml
+      - run: sed "s/{{TAG}}/<< parameters.tag >>/g" k8s/deployment-eks.yml > k8s/deployment.yml
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
           aws-region: "${AWS_REGION}"
@@ -158,35 +162,36 @@ workflows:
       - build:
           filters:
             branches:
-              only: /^master$/
+              only: /^(master|staging)$/
           matrix:
             parameters:
-              version: ["1.11", "1.12", "1.13", "1.14"]
+              gover: ["1.11", "1.12", "1.13", "1.14"]
       - test:
           filters:
             branches:
-              only: /^master$/
+              only: /^(master|staging)$/
           matrix:
             parameters:
-              version: ["1.11", "1.12", "1.13"]
+              gover: ["1.11", "1.12", "1.13"]
+              chromever: ["latest", "83.0.4103.61", "82.0.4085.12"]
           requires:
             - build
       - aws-ecr/build-and-push-image:
           filters:
             branches:
-              only: /^master$/
+              only: /^(master|staging)$/
           attach-workspace: true
           context: jlCloudSecrets
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
-          tag: "latest"
+          tag: $CIRCLE_SHA1
           requires:
             - test
       - gcr-build-and-push:
           filters:
             branches:
-              only: /^master$/
+              only: /^(master|staging)$/
           context: jlCloudSecrets
-          tag: "latest"
+          tag: $CIRCLE_SHA1
           requires:
             - test
       - hold-gke-deployment:
@@ -196,9 +201,9 @@ workflows:
       - create-gke-deployment:
           filters:
             branches:
-              only: /^master$/
+              only: /^(master|staging)$/
           namespace: ""
-          tag: "latest"
+          tag: $CIRCLE_SHA1
           context: jlCloudSecrets
           cluster-name: demo-cluster
           requires: 
@@ -210,9 +215,9 @@ workflows:
       - create-eks-deployment:
           filters:
             branches:
-              only: /^master$/
+              only: /^(master|staging)$/
           namespace: ""
-          tag: "latest"
+          tag: $CIRCLE_SHA1
           context: jlCloudSecrets
           cluster-name: jlovelace-demo-k8s
           requires:
@@ -222,53 +227,54 @@ workflows:
       - build:
           filters:
             branches:
-              ignore: /^master$/
+              ignore: /^(master|staging)$/
           matrix:
             parameters:
-              version: ["1.13"]
+              gover: ["1.13"]
       - test:
           filters:
             branches:
-              ignore: /^master$/
+              ignore: /^(master|staging)$/
           matrix:
             parameters:
-              version: ["1.13"]
+              gover: ["1.13"]
+              chromever: ["latest", "83.0.4103.61", "82.0.4085.12"]
           requires:
             - build
       - aws-ecr/build-and-push-image:
           filters:
             branches:
-              ignore: /^master$/
+              ignore: /^(master|staging)$/
           attach-workspace: true
           context: jlCloudSecrets
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
-          tag: "$CIRCLE_BRANCH"
+          tag: $CIRCLE_SHA1
           requires:
             - test
       - gcr-build-and-push:
           filters:
             branches:
-              ignore: /^master$/
+              ignore: /^(master|staging)$/
           context: jlCloudSecrets
-          tag: "$CIRCLE_BRANCH"
+          tag: $CIRCLE_SHA1
           requires:
             - test
       - create-gke-deployment:
           filters:
             branches:
-              ignore: /^master$/
+              ignore: /^(master|staging)$/
           context: jlCloudSecrets
           cluster-name: demo-cluster	
-          namespace: "${CIRCLE_BRANCH}"
-          tag: "${CIRCLE_BRANCH}"
+          namespace: $CIRCLE_BRANCH
+          tag: $CIRCLE_SHA1
           requires: 
             - gcr-build-and-push
       - create-eks-deployment:
           filters:
             branches:
-              ignore: /^master$/
+              ignore: /^(master|staging)$/
           namespace: "${CIRCLE_BRANCH}"
-          tag: "${CIRCLE_BRANCH}"
+          tag: $CIRCLE_SHA1
           context: jlCloudSecrets
           cluster-name: jlovelace-demo-k8s
           requires:
