@@ -129,7 +129,7 @@ jobs:
       - when:
           condition: << parameters.namespace >>
           steps:
-            - run: kubectl create namespace << parameters.namespace >>
+            - run: kubectl create namespace << parameters.namespace >> || echo "Namespace already exists."
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
           namespace: << parameters.namespace >>
