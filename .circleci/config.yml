@@ -16,11 +16,10 @@ jobs:
     docker:
       - image: circleci/golang:<< parameters.version >>
     steps:
-      - restore_cache:
-          keys:
-            - go-mod-v1-{{ checksum "go.sum" }}
       - checkout
-      - run: go get -v -t -d ./...
+      - restore_cache:
+        keys:
+          - go-mod-v1-{{ checksum "go.sum" }}
       - run: mkdir -p workspace/<< parameters.version >>
       - run: go test -c -o workspace/<< parameters.version >>/test
       - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o workspace/<< parameters.version >>/circleci
@@ -86,7 +85,7 @@ jobs:
         type: string
     steps:
       - checkout
-      - run: sed 's/{{TAG}}/<< parameters.tag >>/g' k8s/deployment-eks.yml > k8s/deployment.yml
+      - run: sed "s/{{TAG}}/<< parameters.tag >>/g" k8s/deployment-eks.yml > k8s/deployment.yml
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
           aws-region: "${AWS_REGION}"
