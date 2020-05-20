@@ -322,7 +322,7 @@ workflows:
           tag: $CIRCLE_SHA1
           context: jlCloudSecrets
           cluster-name: demo-cluster
-          image: jll-ci-test/demo-app
+          container: gcr.io/jll-ci-test/demo-app
           requires: 
             - hold-gke-deployment
       - hold-eks-deployment:
@@ -337,7 +337,7 @@ workflows:
           tag: $CIRCLE_SHA1
           context: jlCloudSecrets
           cluster-name: jlovelace-demo-k8s
-          image: 241099261431.dkr.ecr.us-east-1.amazonaws.com/jesse-ccits/demo-app
+          container: 241099261431.dkr.ecr.us-east-1.amazonaws.com/jesse-ccits/demo-app
           requires:
             - hold-eks-deployment
       - hold-do-deployment:
@@ -351,6 +351,7 @@ workflows:
           namespace: ""
           tag: $CIRCLE_SHA1
           context: jlDigitalOcean
+          container: registry.digitalocean.com/circle-demo-deploy/demo-app
           cluster-name: circle-ci-cluster
           requires: 
             - hold-do-deployment
