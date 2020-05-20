@@ -90,13 +90,13 @@ jobs:
         description: |
           The deployment namespace.
         type: string
-      image:
+      container:
         description: |
-          The deployment image.
+          The deployment container including the registry and path.
         type: string
     steps:
       - checkout
-      - run: sed "s/{{IMAGE}}/<< parameters.image >>/g" k8s/deployment-eks.yml > k8s/deployment.yml
+      - run: sed "s/{{IMAGE}}/<< parameters.container >>/g" k8s/deployment-eks.yml > k8s/deployment.yml
       - run: sed "s/{{TAG}}/<< parameters.tag >>/g" k8s/deployment.yml > k8s/deployment.yml
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
@@ -130,13 +130,13 @@ jobs:
         description: |
           The deployment namespace.
         type: string
-      image:
+      container:
         description: |
-          The deployment image.
+          The deployment container including the registry and path.
         type: string
     steps:
       - checkout
-      - run: sed "s/{{IMAGE}}/<< parameters.image >>/g" k8s/deployment-gke.yml > k8s/deployment.yml
+      - run: sed "s/{{IMAGE}}/<< parameters.container >>/g" k8s/deployment-gke.yml > k8s/deployment.yml
       - run: sed "s/{{TAG}}/<< parameters.tag >>/g" k8s/deployment.yml > k8s/deployment.yml
       - gcp-gcr/gcr-auth
       - gcp-gke/update-kubeconfig-with-credentials:
@@ -170,13 +170,13 @@ jobs:
         description: |
           The deployment namespace.
         type: string
-      image:
+      container:
         description: |
-          The deployment image.
+          The deployment container including the registry and path.
         type: string
     steps:
       - checkout
-      - run: sed "s/{{IMAGE}}/<< parameters.image >>/g" k8s/deployment-do.yml > k8s/deployment.yml
+      - run: sed "s/{{IMAGE}}/<< parameters.container >>/g" k8s/deployment-do.yml > k8s/deployment.yml
       - run: sed "s/{{TAG}}/<< parameters.tag >>/g" k8s/deployment.yml > k8s/deployment.yml
       - kubernetes/install-kubectl
       - digitalocean/install
@@ -298,7 +298,7 @@ workflows:
               only: /^(master|staging)$/
           context: jlCloudSecrets
           tag: $CIRCLE_SHA1
-          image: demo-app
+          image: jll-ci-test/demo-app
           requires:
             - test
       - do-build-and-push:
@@ -322,6 +322,7 @@ workflows:
           tag: $CIRCLE_SHA1
           context: jlCloudSecrets
           cluster-name: demo-cluster
+          image: jll-ci-test/demo-app
           requires: 
             - hold-gke-deployment
       - hold-eks-deployment:
@@ -336,6 +337,7 @@ workflows:
           tag: $CIRCLE_SHA1
           context: jlCloudSecrets
           cluster-name: jlovelace-demo-k8s
+          image: 241099261431.dkr.ecr.us-east-1.amazonaws.com/jesse-ccits/demo-app
           requires:
             - hold-eks-deployment
       - hold-do-deployment:
@@ -387,7 +389,7 @@ workflows:
               ignore: /^(master|staging)$/
           context: jlCloudSecrets
           tag: $CIRCLE_SHA1
-          image: demo-app
+          image: jll-ci-test/demo-app
           requires:
             - test
       - create-gke-deployment:
@@ -398,6 +400,7 @@ workflows:
           cluster-name: demo-cluster	
           namespace: $CIRCLE_BRANCH
           tag: $CIRCLE_SHA1
+          container: gcr.io/jll-ci-test/demo-app
           requires: 
             - gcr-build-and-push
       - create-eks-deployment:
@@ -408,6 +411,7 @@ workflows:
           tag: $CIRCLE_SHA1
           context: jlCloudSecrets
           cluster-name: jlovelace-demo-k8s
+          container: 241099261431.dkr.ecr.us-east-1.amazonaws.com/jesse-ccits/demo-app
           requires:
             - aws-ecr/build-and-push-image
       - do-build-and-push:
@@ -430,6 +434,7 @@ workflows:
           namespace: ""
           tag: $CIRCLE_SHA1
           context: jlDigitalOcean
+          container: registry.digitalocean.com/circle-demo-deploy/demo-app
           cluster-name: circle-ci-cluster
           requires: 
             - hold-do-deployment
