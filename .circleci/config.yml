@@ -6,7 +6,7 @@ orbs:
   aws-ecr: circleci/aws-ecr@6.8.2
   gcp-gke: circleci/gcp-gke@1.0.4
   aws-eks: circleci/aws-eks@0.2.7
-  cli: digitalocean/cli@0.1.1
+  digitalocean: digitalocean/cli@0.1.1
   docker: circleci/docker@1.0.1
   win: circleci/windows@2.2.0 
 
@@ -180,7 +180,9 @@ jobs:
           image: demo-app
           registry: registry.digitalocean.com/circle-demo-deploy
           tag: << parameters.tag >>
-      - cli/install_and_initialize_cli
+      - digitalocean/install
+      - digitalocean/initialize:
+          digitalocean-access-token: $DIGITALOCEAN_ACCESS_TOKEN
       - run: doctl registry login
       - docker/push:
           image: demo-app
