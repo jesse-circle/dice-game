@@ -208,10 +208,10 @@ workflows:
           cluster-name: demo-cluster
           requires: 
             - hold-gke-deployment
-      #- hold-eks-deployment:
-      #    requires:
-      #      - aws-ecr/build-and-push-image
-      #    type: approval
+      - hold-eks-deployment:
+          requires:
+            - aws-ecr/build-and-push-image
+          type: approval
       - create-eks-deployment:
           filters:
             branches:
@@ -220,10 +220,8 @@ workflows:
           tag: $CIRCLE_SHA1
           context: jlCloudSecrets
           cluster-name: jlovelace-demo-k8s
-          type: approval
           requires:
-            - aws-ecr/build-and-push-image
-            #- hold-eks-deployment
+            - hold-eks-deployment
   feature_branch_flow:
     jobs:
       - build:
