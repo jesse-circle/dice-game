@@ -146,7 +146,9 @@ jobs:
           steps:    
             - run: kubectl -n << parameters.namespace >> get svc
   gcr-build-and-push:
-    executor: gcp-gcr/default
+    executor: 
+      name: gcp-gcr/default
+      size: xlarge
     parameters:
       tag:
         description: |
@@ -166,7 +168,9 @@ jobs:
           image: demo-app
           registry-url: gcr.io
   do-build-and-push:
-    executor: docker/docker
+    executor: 
+      name: docker/docker
+      size: xlarge
     parameters:
       tag:
         description: |
