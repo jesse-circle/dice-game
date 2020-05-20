@@ -372,13 +372,13 @@ workflows:
           requires:
             - aws-ecr/build-and-push-image
       - do-build-and-push:
-        filters:
-          branches:
-            only: /^(master|staging)$/
-        context: jlDigitalOcean
-        tag: $CIRCLE_SHA1
-        requires:
-          - test
+          filters:
+            branches:
+              only: /^(master|staging)$/
+          context: jlDigitalOcean
+          tag: $CIRCLE_SHA1
+          requires:
+            - test
       - hold-do-deployment:
           requires:
             - do-build-and-push
