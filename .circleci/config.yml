@@ -176,7 +176,7 @@ jobs:
         type: string
     steps:
       - checkout
-      - run: export IMAGE="<< parameters.container >>" && export TAG="<< parameters.tag >>""
+      - run: export IMAGE="<< parameters.container >>" && export TAG="<< parameters.tag >>"
       - run: cat k8s/deployment-do.yml | envsubst > k8s/deployment.yml
       - kubernetes/install-kubectl
       - digitalocean/install
