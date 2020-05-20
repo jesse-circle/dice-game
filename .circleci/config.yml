@@ -169,7 +169,7 @@ jobs:
           digitalocean-access-token: DIGITALOCEAN_ACCESS_TOKEN
       - run: doctl kubernetes cluster kubeconfig save << parameters.cluster-name >>
       - run: doctl registry kubernetes-manifest | kubectl apply -f -
-      - run: kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "registry-circle-demo-deploy"}]}'
+      - run: "kubectl patch serviceaccount default -p '{\"imagePullSecrets\": [{\"name\": \"registry-circle-demo-deploy\"}]}'"
       - when:
           condition: << parameters.namespace >>
           steps:
