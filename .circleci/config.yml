@@ -241,7 +241,7 @@ workflows:
           attach-workspace: true
           context: jlCloudSecrets
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
-          tag: "${CIRCLE_BRANCH}"
+          tag: $CIRCLE_BRANCH
           requires:
             - test
       - gcr-build-and-push:
@@ -249,7 +249,7 @@ workflows:
             branches:
               ignore: /^(master|staging)$/
           context: jlCloudSecrets
-          tag: "${CIRCLE_BRANCH}"
+          tag: $CIRCLE_BRANCH
           requires:
             - test
       - create-gke-deployment:
@@ -258,8 +258,8 @@ workflows:
               ignore: /^(master|staging)$/
           context: jlCloudSecrets
           cluster-name: demo-cluster	
-          namespace: "${CIRCLE_BRANCH}"
-          tag: "${CIRCLE_BRANCH}"
+          namespace: $CIRCLE_BRANCH
+          tag: $CIRCLE_BRANCH
           requires: 
             - gcr-build-and-push
       - create-eks-deployment:
@@ -267,7 +267,7 @@ workflows:
             branches:
               ignore: /^(master|staging)$/
           namespace: "${CIRCLE_BRANCH}"
-          tag: "${CIRCLE_BRANCH}"
+          tag: $CIRCLE_BRANCH
           context: jlCloudSecrets
           cluster-name: jlovelace-demo-k8s
           requires:
