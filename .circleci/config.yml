@@ -66,7 +66,8 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - run: cd /tmp/workspace/<< parameters.gover >> && ./test
-  security:
+  # Static security testing for GoLang
+  security-sast:
     docker:
       - image: securego/gosec:latest
     steps:
