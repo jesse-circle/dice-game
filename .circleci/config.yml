@@ -246,7 +246,7 @@ jobs:
           Image name.
         type: string
     steps:
-      - setup_remote_docker
+      - setup_remote_docker:
           docker_layer_caching: true
       - checkout
       - attach_workspace:
