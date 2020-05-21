@@ -285,6 +285,9 @@ workflows:
           requires:
             - build
       - aws-ecr/build-and-push-image:
+          executor:
+            name: aws-ecr/default
+            use-docker-layer-caching: true
           filters:
             branches:
               only: /^(master|staging)$/
