@@ -68,13 +68,10 @@ jobs:
       - run: cd /tmp/workspace/<< parameters.gover >> && ./test
   security:
     docker:
-      - image: chromedp/headless-shell:latest
-    working_directory: /go/src/github.com/mentat/circle-demo-go
+      - image: securego/gosec:latest
     steps:
-      - run: apt-get update && apt-get -y install ca-certificates
-      - attach_workspace:
-          at: /tmp/workspace
-      - run: cd /tmp/workspace/<< parameters.gover >> && ./test
+      - checkout
+      - run: gosec ./...
   create-eks-deployment:
     executor: aws-eks/python3
     parameters:
@@ -272,6 +269,10 @@ workflows:
   version: 2
   production_flow:
     jobs:
+      - security:
+          filters:
+            branches:
+              only: /^(master|staging)$/
       - build:
           filters:
             branches:
@@ -367,6 +368,10 @@ workflows:
             - hold-do-deployment
   feature_branch_flow:
     jobs:
+      - security:
+          filters:
+            branches:
+              ignore: /^(master|staging)$/
       - build:
           filters:
             branches:
