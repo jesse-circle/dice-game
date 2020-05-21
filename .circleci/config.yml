@@ -102,6 +102,7 @@ jobs:
       IMAGE: << parameters.container >>
     steps:
       - checkout
+      - sudo apt-get update && sudo apt-get install -y gettext_base
       - run: cat k8s/deployment.yml | envsubst > k8s/deployment-final.yml
       - run: cat k8s/deployment-final.yml
       - aws-eks/update-kubeconfig-with-authenticator:
