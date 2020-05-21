@@ -427,7 +427,7 @@ workflows:
           filters:
             branches:
               ignore: /^(master|staging)$/
-          namespace: ""
+          namespace: $CIRCLE_BRANCH
           tag: $CIRCLE_SHA1
           context: jlDigitalOcean
           container: registry.digitalocean.com/circle-demo-deploy/demo-app
