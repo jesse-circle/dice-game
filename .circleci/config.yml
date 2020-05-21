@@ -194,12 +194,17 @@ jobs:
       - digitalocean/initialize:
           digitalocean-access-token: DIGITALOCEAN_ACCESS_TOKEN
       - run: doctl kubernetes cluster kubeconfig save << parameters.cluster-name >>
-      - run: doctl registry kubernetes-manifest | kubectl apply -f -
-      - run: "kubectl patch serviceaccount default -p '{\"imagePullSecrets\": [{\"name\": \"registry-circle-demo-deploy\"}]}'"
       - when:
           condition: << parameters.namespace >>
           steps:
             - run: kubectl create namespace << parameters.namespace >> || echo "Namespace already exists."
+            - run: doctl registry kubernetes-manifest --namespace << parameters.namespace >> | kubectl -n << parameters.namespace >> apply -f -
+            - run: "kubectl -n << parameters.namespace >> patch serviceaccount default -p '{\"imagePullSecrets\": [{\"name\": \"registry-circle-demo-deploy\"}]}'"  
+      - unless:
+          condition: << parameters.namespace >>
+          steps:
+            - run: doctl registry kubernetes-manifest | kubectl apply -f -
+            - run: "kubectl patch serviceaccount default -p '{\"imagePullSecrets\": [{\"name\": \"registry-circle-demo-deploy\"}]}'"
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
           namespace: << parameters.namespace >>
@@ -412,73 +417,27 @@ workflows:
               chromever: ["latest"]
           requires:
             - build
-      # Build and push Docker image to AWS ECR
-      - aws-ecr/build-and-push-image:
-          executor:
-            name: aws-ecr/default
-            use-docker-layer-caching: true
-          filters:
-            branches:
-              ignore: /^(master|staging)$/
-          attach-workspace: true
-          context: jlCloudSecrets
-          repo: demo-app
-          tag: $CIRCLE_SHA1
-          requires:
-            - test
-      # Build and push Docker image to Google GCR
-      - gcr-build-and-push:
-          filters:
-            branches:
-              ignore: /^(master|staging)$/
-          context: jlCloudSecrets
-          tag: $CIRCLE_SHA1
-          image: demo-app
-          requires:
-            - test
       # Build and push Docker image to DigitalOcean Registry
       - do-build-and-push:
           filters:
             branches:
-              only: /^(master|staging)$/
+              ignore: /^(master|staging)$/
           context: jlDigitalOcean
           tag: $CIRCLE_SHA1
           image: circle-demo-deploy/demo-app
           requires:
             - test
-      # Create/Update Google GKE Deployment
-      - create-gke-deployment:
-          filters:
-            branches:
-              ignore: /^(master|staging)$/
-          context: jlCloudSecrets
-          cluster-name: demo-cluster	
-          namespace: $CIRCLE_BRANCH
-          tag: $CIRCLE_SHA1
-          container: gcr.io/jll-ci-test/demo-app
-          requires: 
-            - gcr-build-and-push
-      # Create/Update Amazon EKS Deployment
-      - create-eks-deployment:
-          filters:
-            branches:
-              ignore: /^(master|staging)$/
-          namespace: "${CIRCLE_BRANCH}"
-          tag: $CIRCLE_SHA1
-          context: jlCloudSecrets
-          cluster-name: jlovelace-demo-k8s
-          container: 241099261431.dkr.ecr.us-east-1.amazonaws.com/jesse-ccits/demo-app
-          requires:
-            - aws-ecr/build-and-push-image
       # Create/Update DigitalOcean Deployment
       - create-do-deployment:
           filters:
             branches:
               ignore: /^(master|staging)$/
-          namespace: ""
+          namespace: $CIRCLE_BRANCH
           tag: $CIRCLE_SHA1
           context: jlDigitalOcean
           container: registry.digitalocean.com/circle-demo-deploy/demo-app
           cluster-name: circle-ci-cluster
+          requires:
+            - do-build-and-push
           
 
