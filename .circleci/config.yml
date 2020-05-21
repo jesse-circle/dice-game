@@ -78,9 +78,7 @@ jobs:
       - run: gosec ./...
   # Create/Update Amazon EKS Deployment
   create-eks-deployment:
-    executor: 
-      name: aws-eks/python
-      tag: 3.8.3-buster-node
+    executor: aws-eks/python
     parameters:
       tag:
         description: |
@@ -102,7 +100,7 @@ jobs:
       IMAGE: << parameters.container >>
     steps:
       - checkout
-      - sudo apt-get update && sudo apt-get install -y gettext_base
+      - run: sudo apt-get update && sudo apt-get install -y gettext_base
       - run: cat k8s/deployment.yml | envsubst > k8s/deployment-final.yml
       - run: cat k8s/deployment-final.yml
       - aws-eks/update-kubeconfig-with-authenticator:
