@@ -194,12 +194,17 @@ jobs:
       - digitalocean/initialize:
           digitalocean-access-token: DIGITALOCEAN_ACCESS_TOKEN
       - run: doctl kubernetes cluster kubeconfig save << parameters.cluster-name >>
-      - run: doctl registry kubernetes-manifest | kubectl apply -f -
-      - run: "kubectl patch serviceaccount default -p '{\"imagePullSecrets\": [{\"name\": \"registry-circle-demo-deploy\"}]}'"
       - when:
           condition: << parameters.namespace >>
           steps:
             - run: kubectl create namespace << parameters.namespace >> || echo "Namespace already exists."
+            - run: doctl registry kubernetes-manifest | kubectl -n << parameters.namespace >> apply -f -
+            - run: "kubectl -n << parameters.namespace >> patch serviceaccount default -p '{\"imagePullSecrets\": [{\"name\": \"registry-circle-demo-deploy\"}]}'"  
+      - unless:
+          condition: << parameters.namespace >>
+          steps:
+            - run: doctl registry kubernetes-manifest | kubectl apply -f -
+            - run: "kubectl patch serviceaccount default -p '{\"imagePullSecrets\": [{\"name\": \"registry-circle-demo-deploy\"}]}'"
       - kubernetes/create-or-update-resource:
           get-rollout-status: true
           namespace: << parameters.namespace >>
