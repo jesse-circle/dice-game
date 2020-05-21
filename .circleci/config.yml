@@ -94,10 +94,11 @@ jobs:
         description: |
           The deployment container including the registry and path. 
         type: string
+    environment:
+      TAG: << parameters.tag >>
+      IMAGE: << parameters.container >>
     steps:
       - checkout
-      - run: export IMAGE="<< parameters.container >>"
-      - run: export TAG="<< parameters.tag >>"
       - run: cat k8s/deployment-eks.yml | envsubst > k8s/deployment.yml
       - run: cat k8s/deployment.yml
       - aws-eks/update-kubeconfig-with-authenticator:
@@ -136,10 +137,11 @@ jobs:
         description: |
           The deployment container including the registry and path.
         type: string
+    environment:
+      TAG: << parameters.tag >>
+      IMAGE: << parameters.container >>
     steps:
       - checkout
-      - run: export IMAGE="<< parameters.container >>"
-      - run: export TAG="<< parameters.tag >>"
       - run: cat k8s/deployment-gke.yml | envsubst > k8s/deployment.yml
       - gcp-gcr/gcr-auth
       - gcp-gke/update-kubeconfig-with-credentials:
@@ -177,10 +179,11 @@ jobs:
         description: |
           The deployment container including the registry and path.
         type: string
+    environment:
+      TAG: << parameters.tag >>
+      IMAGE: << parameters.container >>
     steps:
       - checkout
-      - run: export IMAGE="<< parameters.container >>"
-      - run: export TAG="<< parameters.tag >>"
       - run: cat k8s/deployment-do.yml | envsubst > k8s/deployment.yml
       - run: cat k8s/deployment.yml
       - run: env
