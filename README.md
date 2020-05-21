@@ -36,3 +36,4 @@ go build
 
  * http://google.knobs.io/
  * http://aws.knobs.io/
+ * http://digitalocean.knobs.io/
