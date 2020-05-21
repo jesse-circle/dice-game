@@ -201,7 +201,7 @@ jobs:
           condition: << parameters.namespace >>
           steps:    
             - run: kubectl -n << parameters.namespace >> get svc
-  
+  # Build and push Docker image to Google GCR
   gcr-build-and-push:
     executor: gcp-gcr/default
     parameters:
@@ -269,7 +269,8 @@ workflows:
   version: 2
   production_flow:
     jobs:
-      - security:
+      # Static application security testing
+      - security-sast:
           filters:
             branches:
               only: /^(master|staging)$/
@@ -281,7 +282,8 @@ workflows:
             parameters:
               gover: ["1.11", "1.12", "1.13", "1.14"]
           requires:
-            - security
+            - security-sast
+      # Run unit tests and headless chrome test
       - test:
           filters:
             branches:
@@ -292,6 +294,7 @@ workflows:
               chromever: ["latest", "83.0.4103.61", "82.0.4085.12"]
           requires:
             - build
+      # Build and push Docker image to AWS ECR
       - aws-ecr/build-and-push-image:
           executor:
             name: aws-ecr/default
@@ -305,15 +308,17 @@ workflows:
           tag: $CIRCLE_SHA1
           requires:
             - test
+      # Build and push Docker image to Google GCR
       - gcr-build-and-push:
           filters:
             branches:
               only: /^(master|staging)$/
           context: jlCloudSecrets
           tag: $CIRCLE_SHA1
-          image: jll-ci-test/demo-app
+          image: demo-app
           requires:
             - test
+      # Build and push Docker image to DigitalOcean Registry
       - do-build-and-push:
           filters:
             branches:
@@ -323,10 +328,12 @@ workflows:
           image: circle-demo-deploy/demo-app
           requires:
             - test
+      # Wait for approval before deploy GKE
       - hold-gke-deployment:
           requires:
             - gcr-build-and-push
           type: approval
+      # Create/Update GKE Deployment
       - create-gke-deployment:
           filters:
             branches:
@@ -371,7 +378,8 @@ workflows:
   ####  Workflow for Feature Branches ####
   feature_branch_flow:
     jobs:
-      - security:
+      # Static application security testing
+      - security-sast:
           filters:
             branches:
               ignore: /^(master|staging)$/
@@ -383,7 +391,8 @@ workflows:
             parameters:
               gover: ["1.13"]
           requires:
-            - security
+            - security-sast
+      # Run unit tests and headless chrome test
       - test:
           filters:
             branches:
@@ -394,6 +403,7 @@ workflows:
               chromever: ["latest"]
           requires:
             - build
+      # Build and push Docker image to AWS ECR
       - aws-ecr/build-and-push-image:
           executor:
             name: aws-ecr/default
@@ -407,15 +417,27 @@ workflows:
           tag: $CIRCLE_SHA1
           requires:
             - test
+      # Build and push Docker image to Google GCR
       - gcr-build-and-push:
           filters:
             branches:
               ignore: /^(master|staging)$/
           context: jlCloudSecrets
           tag: $CIRCLE_SHA1
-          image: jll-ci-test/demo-app
+          image: demo-app
           requires:
             - test
+      # Build and push Docker image to DigitalOcean Registry
+      - do-build-and-push:
+          filters:
+            branches:
+              only: /^(master|staging)$/
+          context: jlDigitalOcean
+          tag: $CIRCLE_SHA1
+          image: circle-demo-deploy/demo-app
+          requires:
+            - test
+      # Create/Update GKE Deployment
       - create-gke-deployment:
           filters:
             branches:
@@ -427,6 +449,7 @@ workflows:
           container: gcr.io/jll-ci-test/demo-app
           requires: 
             - gcr-build-and-push
+      # Create/Update EKS Deployment
       - create-eks-deployment:
           filters:
             branches:
@@ -438,19 +461,7 @@ workflows:
           container: 241099261431.dkr.ecr.us-east-1.amazonaws.com/jesse-ccits/demo-app
           requires:
             - aws-ecr/build-and-push-image
-      - do-build-and-push:
-          filters:
-            branches:
-              only: /^(master|staging)$/
-          context: jlDigitalOcean
-          tag: $CIRCLE_SHA1
-          image: circle-demo-deploy/demo-app
-          requires:
-            - test
-      - hold-do-deployment:
-          requires:
-            - do-build-and-push
-          type: approval
+      # Create/Update DigitalOcean Deployment
       - create-do-deployment:
           filters:
             branches:
@@ -460,6 +471,5 @@ workflows:
           context: jlDigitalOcean
           container: registry.digitalocean.com/circle-demo-deploy/demo-app
           cluster-name: circle-ci-cluster
-          requires: 
-            - hold-do-deployment
+          
 
