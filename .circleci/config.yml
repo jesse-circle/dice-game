@@ -280,6 +280,8 @@ workflows:
           matrix:
             parameters:
               gover: ["1.11", "1.12", "1.13", "1.14"]
+          requires:
+            - security
       - test:
           filters:
             branches:
@@ -366,6 +368,7 @@ workflows:
           cluster-name: circle-ci-cluster
           requires: 
             - hold-do-deployment
+  ####  Workflow for Feature Branches ####
   feature_branch_flow:
     jobs:
       - security:
@@ -379,6 +382,8 @@ workflows:
           matrix:
             parameters:
               gover: ["1.13"]
+          requires:
+            - security
       - test:
           filters:
             branches:
