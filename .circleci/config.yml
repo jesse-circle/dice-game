@@ -96,7 +96,8 @@ jobs:
         type: string
     steps:
       - checkout
-      - run: export IMAGE="<< parameters.container >>"export TAG="<< parameters.tag >>"
+      - run: export IMAGE="<< parameters.container >>"
+      - run: export TAG="<< parameters.tag >>"
       - run: cat k8s/deployment-eks.yml | envsubst > k8s/deployment.yml
       - run: cat k8s/deployment.yml
       - aws-eks/update-kubeconfig-with-authenticator:
@@ -137,7 +138,8 @@ jobs:
         type: string
     steps:
       - checkout
-      - run: export IMAGE="<< parameters.container >>" && export TAG="<< parameters.tag >>"
+      - run: export IMAGE="<< parameters.container >>"
+      - run: export TAG="<< parameters.tag >>"
       - run: cat k8s/deployment-gke.yml | envsubst > k8s/deployment.yml
       - gcp-gcr/gcr-auth
       - gcp-gke/update-kubeconfig-with-credentials:
@@ -177,7 +179,8 @@ jobs:
         type: string
     steps:
       - checkout
-      - run: export IMAGE="<< parameters.container >>" && export TAG="<< parameters.tag >>"
+      - run: export IMAGE="<< parameters.container >>"
+      - run: export TAG="<< parameters.tag >>"
       - run: cat k8s/deployment-do.yml | envsubst > k8s/deployment.yml
       - run: cat k8s/deployment.yml
       - run: env
