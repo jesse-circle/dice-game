@@ -178,6 +178,7 @@ jobs:
       - checkout
       - run: export IMAGE="<< parameters.container >>" && export TAG="<< parameters.tag >>"
       - run: cat k8s/deployment-do.yml | envsubst > k8s/deployment.yml
+      - run: cat k8s/deployment.yml
       - kubernetes/install-kubectl
       - digitalocean/install
       - digitalocean/initialize:
@@ -246,6 +247,7 @@ jobs:
         type: string
     steps:
       - setup_remote_docker
+          docker_layer_caching: true
       - checkout
       - attach_workspace:
           at: /home/circleci/project
@@ -283,6 +285,9 @@ workflows:
           requires:
             - build
       - aws-ecr/build-and-push-image:
+          executor:
+            name: aws-ecr/default
+            use-docker-layer-caching: true
           filters:
             branches:
               only: /^(master|staging)$/
@@ -375,6 +380,9 @@ workflows:
           requires:
             - build
       - aws-ecr/build-and-push-image:
+          executor:
+            name: aws-ecr/default
+            use-docker-layer-caching: true
           filters:
             branches:
               ignore: /^(master|staging)$/
