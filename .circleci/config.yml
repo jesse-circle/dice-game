@@ -180,6 +180,7 @@ jobs:
       - run: export IMAGE="<< parameters.container >>" && export TAG="<< parameters.tag >>"
       - run: cat k8s/deployment-do.yml | envsubst > k8s/deployment.yml
       - run: cat k8s/deployment.yml
+      - run: env
       - kubernetes/install-kubectl
       - digitalocean/install
       - digitalocean/initialize:
