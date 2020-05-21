@@ -198,7 +198,7 @@ jobs:
           condition: << parameters.namespace >>
           steps:
             - run: kubectl create namespace << parameters.namespace >> || echo "Namespace already exists."
-            - run: doctl registry kubernetes-manifest | kubectl -n << parameters.namespace >> apply -f -
+            - run: doctl registry kubernetes-manifest --namespace << parameters.namespace >> | kubectl -n << parameters.namespace >> apply -f -
             - run: "kubectl -n << parameters.namespace >> patch serviceaccount default -p '{\"imagePullSecrets\": [{\"name\": \"registry-circle-demo-deploy\"}]}'"  
       - unless:
           condition: << parameters.namespace >>
