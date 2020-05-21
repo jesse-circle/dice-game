@@ -416,7 +416,7 @@ workflows:
       - do-build-and-push:
           filters:
             branches:
-              only: /^(master|staging)$/
+              ignore: /^(master|staging)$/
           context: jlDigitalOcean
           tag: $CIRCLE_SHA1
           image: circle-demo-deploy/demo-app
