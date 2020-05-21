@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: demo-app
-        image: gcr.io/jll-ci-test/demo-app:{{TAG}}
+        image: gcr.io/jll-ci-test/demo-app:${TAG}
         ports:
         - containerPort: 9000
 ---
