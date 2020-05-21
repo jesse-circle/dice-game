@@ -11,6 +11,7 @@ orbs:
   win: circleci/windows@2.2.0 
 
 jobs:
+  # Build Linux app and test binaries
   build:
     parameters:
       gover: 
@@ -37,6 +38,7 @@ jobs:
             - << parameters.gover >>/test
             - << parameters.gover >>/circleci
             - << parameters.gover >>/templates
+  # Build Windows Binary
   build-windows:
     executor:
       name: win/default 
@@ -49,6 +51,7 @@ jobs:
       - store_artifacts:
           path: circleci
           destination: circleci
+  # Run unit and headless browser functional tests
   test:
     parameters:
       gover: 
@@ -73,8 +76,11 @@ jobs:
     steps:
       - checkout
       - run: gosec ./...
+  # Create/Update Amazon EKS Deployment
   create-eks-deployment:
-    executor: aws-eks/python3
+    executor: 
+      name: aws-eks/python
+      tag: 3.7.2-stretch
     parameters:
       tag:
         description: |
@@ -115,6 +121,7 @@ jobs:
           condition: << parameters.namespace >>
           steps:    
             - run: kubectl -n << parameters.namespace >> get svc
+  # Create/Update GKE Deployment
   create-gke-deployment:
     executor: gcp-gcr/default
     parameters:
@@ -156,6 +163,7 @@ jobs:
           condition: << parameters.namespace >>
           steps:    
             - run: kubectl -n << parameters.namespace >> get svc
+  # Create/Update DigitalOcean Deployment
   create-do-deployment:
     executor: gcp-gcr/default
     parameters:
@@ -232,6 +240,7 @@ jobs:
           tag: << parameters.tag >>
           image: << parameters.image >>
           registry-url: << parameters.registry >>
+  # Build and push Docker image to DigitalOcean Registry
   do-build-and-push:
     executor: docker/docker
     parameters:
@@ -438,7 +447,7 @@ workflows:
           image: circle-demo-deploy/demo-app
           requires:
             - test
-      # Create/Update GKE Deployment
+      # Create/Update Google GKE Deployment
       - create-gke-deployment:
           filters:
             branches:
@@ -450,7 +459,7 @@ workflows:
           container: gcr.io/jll-ci-test/demo-app
           requires: 
             - gcr-build-and-push
-      # Create/Update EKS Deployment
+      # Create/Update Amazon EKS Deployment
       - create-eks-deployment:
           filters:
             branches:
@@ -466,7 +475,7 @@ workflows:
       - create-do-deployment:
           filters:
             branches:
-              only: /^(master|staging)$/
+              ignore: /^(master|staging)$/
           namespace: ""
           tag: $CIRCLE_SHA1
           context: jlDigitalOcean
