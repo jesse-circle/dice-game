@@ -80,7 +80,7 @@ jobs:
   create-eks-deployment:
     executor: 
       name: aws-eks/python
-      tag: 3.7.2-stretch
+      tag: 3.6.9-stretch
     parameters:
       tag:
         description: |
