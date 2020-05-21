@@ -92,7 +92,7 @@ jobs:
         type: string
       container:
         description: |
-          The deployment container including the registry and path.
+          The deployment container including the registry and path. 
         type: string
     steps:
       - checkout
