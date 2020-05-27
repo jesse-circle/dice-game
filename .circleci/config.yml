@@ -92,10 +92,6 @@ jobs:
           get-rollout-status: true
           resource-file-path: k8s/deployment-final.yml
           resource-name: deployment/demo-app
-      - when:
-          condition: << parameters.namespace >>
-          steps:    
-            - run: kubectl -n << parameters.namespace >> get svc
   # Build and push Docker image to DigitalOcean Registry
   do-build-and-push:
     executor: docker/docker
