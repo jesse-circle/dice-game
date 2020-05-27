@@ -21,7 +21,7 @@ jobs:
             - go-mod-v1-{{ checksum "go.sum" }}
       - run: mkdir -p workspace/<< parameters.gover >>
       - run: go test -c -o workspace/<< parameters.gover >>/test
-      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o workspace/<< parameters.gover >>/circleci
+      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o workspace/<< parameters.gover >>/dice-game
       - run: cp -r templates workspace/<< parameters.gover >>/
       - save_cache:
           key: go-mod-v1-{{ checksum "go.sum" }}
@@ -31,7 +31,7 @@ jobs:
           root: workspace
           paths:
             - << parameters.gover >>/test
-            - << parameters.gover >>/circleci
+            - << parameters.gover >>/dice-game
             - << parameters.gover >>/templates
   # Run unit and headless browser functional tests
   test:
