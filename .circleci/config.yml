@@ -178,7 +178,6 @@ workflows:
           filters:
             branches:
               only: /^(master|staging)$/
-          namespace: ""
           tag: $CIRCLE_SHA1
           context: DigitalOcean
           container: registry.digitalocean.com/circle-demo-deploy/demo-app
