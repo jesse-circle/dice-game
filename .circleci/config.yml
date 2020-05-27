@@ -165,7 +165,7 @@ workflows:
           filters:
             branches:
               only: /^(master|staging)$/
-          context: jlDigitalOcean
+          context: DigitalOcean
           tag: $CIRCLE_SHA1
           image: circle-demo-deploy/demo-app
           requires:
@@ -180,7 +180,7 @@ workflows:
               only: /^(master|staging)$/
           namespace: ""
           tag: $CIRCLE_SHA1
-          context: jlDigitalOcean
+          context: DigitalOcean
           container: registry.digitalocean.com/circle-demo-deploy/demo-app
           cluster-name: circle-ci-cluster
           requires: 
