@@ -131,17 +131,11 @@ jobs:
           tag: << parameters.tag >>
 workflows:
   version: 2
-  production_flow:
+  devops_flow:
     jobs:
       # Static application security testing
-      - security-sast:
-          filters:
-            branches:
-              only: /^(master|staging)$/
+      - security-sast
       - build:
-          filters:
-            branches:
-              only: /^(master|staging)$/
           matrix:
             parameters:
               gover: ["1.11", "1.12", "1.13", "1.14"]
@@ -149,9 +143,6 @@ workflows:
             - security-sast
       # Run unit tests and headless chrome test
       - test:
-          filters:
-            branches:
-              only: /^(master|staging)$/
           matrix:
             parameters:
               gover: ["1.11", "1.12", "1.13"]
@@ -168,10 +159,12 @@ workflows:
           image: circle-demo-deploy/demo-app
           requires:
             - test
+      # Wait for approval
       - hold-do-deployment:
           requires:
             - do-build-and-push
           type: approval
+      # Push deployment to Kubernetes Cluster
       - create-do-deployment:
           filters:
             branches:
