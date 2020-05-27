@@ -63,7 +63,7 @@ jobs:
   # Create/Update DigitalOcean Deployment
   create-do-deployment:
     docker:
-      - image: circleci/3.8.0-buster
+      - image: circleci/python:3.8.0-buster
     parameters:
       tag:
         description: |
