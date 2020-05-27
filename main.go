@@ -14,10 +14,11 @@ var indexTmpl = template.Must(template.ParseFiles("templates/index.html"))
 
 // HandleGet - HTTP GET
 func HandleGet(w http.ResponseWriter, r *http.Request) {
-	err := indexTmpl.Execute(w, nil)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-	}
+	//err := indexTmpl.Execute(w, nil)
+	//if err != nil {
+	//	http.Error(w, err.Error(), 500)
+	//}
+	indexTmpl.Execute(w, nil)
 }
 
 // App - struct to hold router for testing and production
