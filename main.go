@@ -40,6 +40,8 @@ func main() {
 		log.Printf("Defaulting to port %s", port)
 	}
 
+	indexTmpl.Execute(w, nil)
+
 	a := App{}
 	a.Init()
 
