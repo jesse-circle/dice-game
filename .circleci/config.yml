@@ -75,7 +75,9 @@ jobs:
       - image: securego/gosec:latest
     steps:
       - checkout
-      - run: gosec ./...
+      - run: gosec -fmt junit-xml -out junit.xml ./...
+      - store_test_results:
+          path: .
   # Create/Update Amazon EKS Deployment
   create-eks-deployment:
     executor: aws-eks/python3
