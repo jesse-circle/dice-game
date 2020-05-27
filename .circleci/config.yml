@@ -1,0 +1,186 @@
+version: 2.1
+
+orbs:
+  kubernetes: circleci/kubernetes@0.11.0
+  digitalocean: digitalocean/cli@0.1.1
+  docker: circleci/docker@1.0.1
+
+jobs:
+  # Build Linux app and test binaries
+  build:
+    parameters:
+      gover: 
+        description: The version of the Go compiler to use.
+        type: string
+    docker:
+      - image: circleci/golang:<< parameters.gover >>
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-v1-{{ checksum "go.sum" }}
+      - run: mkdir -p workspace/<< parameters.gover >>
+      - run: go test -c -o workspace/<< parameters.gover >>/test
+      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o workspace/<< parameters.gover >>/circleci
+      - run: cp -r templates workspace/<< parameters.gover >>/
+      - save_cache:
+          key: go-mod-v1-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg/mod"
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - << parameters.gover >>/test
+            - << parameters.gover >>/circleci
+            - << parameters.gover >>/templates
+  # Run unit and headless browser functional tests
+  test:
+    parameters:
+      gover: 
+        description: The version of the Go compiler to use.
+        type: string
+      chromever: 
+        description: The version of the Chrome browser to use.
+        type: string
+    docker:
+      - image: chromedp/headless-shell:<< parameters.chromever >>
+    resource_class: large
+    working_directory: /go/src/github.com/mentat/circle-demo-go
+    steps:
+      - run: apt-get update && apt-get -y install ca-certificates
+      - attach_workspace:
+          at: /tmp/workspace
+      - run: cd /tmp/workspace/<< parameters.gover >> && ./test
+  # Static security testing for GoLang
+  security-sast:
+    docker:
+      - image: securego/gosec:latest
+    steps:
+      - checkout
+      - run: gosec -fmt junit-xml -out junit.xml ./...
+      - store_test_results:
+          path: .
+  # Create/Update DigitalOcean Deployment
+  create-do-deployment:
+    image: circleci/3.8.0-buster
+    parameters:
+      tag:
+        description: |
+          Tag to use for image.
+        type: string
+      cluster-name:
+        description: |
+          Name of the GKE cluster
+        type: string
+      container:
+        description: |
+          The deployment container including the registry and path.
+        type: string
+    environment:
+      IMAGE: << parameters.container >>
+    steps:
+      - checkout
+      - kubernetes/install-kubectl
+      - digitalocean/install
+      - digitalocean/initialize:
+          digitalocean-access-token: DIGITALOCEAN_ACCESS_TOKEN
+      - run: doctl kubernetes cluster kubeconfig save << parameters.cluster-name >>
+      - run: doctl registry kubernetes-manifest | kubectl apply -f -
+      - run: "kubectl patch serviceaccount default -p '{\"imagePullSecrets\": [{\"name\": \"registry-circle-demo-deploy\"}]}'"
+      - kubernetes/create-or-update-resource:
+          get-rollout-status: true
+          resource-file-path: k8s/deployment-final.yml
+          resource-name: deployment/demo-app
+      - when:
+          condition: << parameters.namespace >>
+          steps:    
+            - run: kubectl -n << parameters.namespace >> get svc
+  # Build and push Docker image to DigitalOcean Registry
+  do-build-and-push:
+    executor: docker/docker
+    parameters:
+      tag:
+        description: |
+          Tag to use for image.
+        type: string
+      registry:
+        description: |
+          Registry to use for image.
+        type: string
+        default: registry.digitalocean.com
+      image:
+        description: |
+          Image name.
+        type: string
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - checkout
+      - attach_workspace:
+          at: /home/circleci/project
+      - digitalocean/install
+      - digitalocean/initialize:
+          digitalocean-access-token: DIGITALOCEAN_ACCESS_TOKEN
+      - run: doctl registry login
+      - docker/build:
+          image: << parameters.image >>
+          registry: << parameters.registry >>
+          tag: << parameters.tag >>
+      - docker/push:
+          image: << parameters.image >>
+          registry: << parameters.registry >>
+          tag: << parameters.tag >>
+workflows:
+  version: 2
+  production_flow:
+    jobs:
+      # Static application security testing
+      - security-sast:
+          filters:
+            branches:
+              only: /^(master|staging)$/
+      - build:
+          filters:
+            branches:
+              only: /^(master|staging)$/
+          matrix:
+            parameters:
+              gover: ["1.11", "1.12", "1.13", "1.14"]
+          requires:
+            - security-sast
+      # Run unit tests and headless chrome test
+      - test:
+          filters:
+            branches:
+              only: /^(master|staging)$/
+          matrix:
+            parameters:
+              gover: ["1.11", "1.12", "1.13"]
+              chromever: ["latest", "83.0.4103.61", "82.0.4085.12"]
+          requires:
+            - build
+      # Build and push Docker image to DigitalOcean Registry
+      - do-build-and-push:
+          filters:
+            branches:
+              only: /^(master|staging)$/
+          context: jlDigitalOcean
+          tag: $CIRCLE_SHA1
+          image: circle-demo-deploy/demo-app
+          requires:
+            - test
+      - hold-do-deployment:
+          requires:
+            - do-build-and-push
+          type: approval
+      - create-do-deployment:
+          filters:
+            branches:
+              only: /^(master|staging)$/
+          namespace: ""
+          tag: $CIRCLE_SHA1
+          context: jlDigitalOcean
+          container: registry.digitalocean.com/circle-demo-deploy/demo-app
+          cluster-name: circle-ci-cluster
+          requires: 
+            - hold-do-deployment
