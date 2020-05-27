@@ -81,6 +81,7 @@ jobs:
       IMAGE: << parameters.container >>
     steps:
       - checkout
+      - run: sudo apt-get update && sudo apt-get install -y gettext-base
       - run: cat k8s/deployment.yml | envsubst > k8s/deployment-final.yml
       - kubernetes/install-kubectl
       - digitalocean/install
