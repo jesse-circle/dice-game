@@ -5,6 +5,7 @@ go 1.14
 require (
 	github.com/chromedp/chromedp v0.5.3
 	github.com/fatih/color v1.9.0 // indirect
+	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gorilla/mux v1.7.4
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/pkg/errors v0.9.1 // indirect

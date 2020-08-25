@@ -63,6 +63,8 @@ jobs:
     docker:
       - image: chromedp/headless-shell:<< parameters.chromever >>
       - image: mysql:latest
+        environment:
+          MYSQL_ROOT_PASSWORD: example
       - image: redis:latest
     resource_class: large
     working_directory: /go/src/github.com/mentat/circle-demo-go

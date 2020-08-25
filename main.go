@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 )
 
@@ -18,6 +19,14 @@ func HandleGet(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 	}
+}
+
+// HandleDBCheck -
+func HandleDBCheck(w http.ResponseWriter, r *http.Request) {
+	//db, err := sql.Open("mysql", "user:password@/dbname")
+	//if err != nil {
+	//	panic(err)
+	//}
 }
 
 // App - struct to hold router for testing and production
