@@ -19,3 +19,11 @@ gcs-login:
 
 gcs-docker:
 	gcloud auth configure-docker
+
+reset:
+	git checkout master
+	git pull origin master
+	git checkout jll-my-great-feature
+	git pull origin jll-my-great-feature
+	git merge master
+	git push origin jll-my-great-feature
