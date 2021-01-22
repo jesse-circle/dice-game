@@ -27,3 +27,6 @@ reset:
 	git pull origin jll-my-great-feature
 	git merge master
 	git push origin jll-my-great-feature
+
+create-traefik-ns:
+	kubectl create ns traefik-system
