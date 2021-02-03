@@ -1,0 +1,37 @@
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: traefik-config
+  namespace: traefik-system
+data:
+  traefik.toml: |
+    # traefik.toml
+    defaultEntryPoints = ["http","https"]
+    debug = false
+    logLevel = "INFO"
+    [entryPoints]
+      [entryPoints.http]
+      address = ":80"
+      compress = true
+        # redirect uncomment to redirect to https
+        [entryPoints.http.redirect]
+          entryPoint = "https"
+          permanent = true
+      [entryPoints.https]
+      address = ":443"
+        compress = true
+        [entryPoints.https.tls]
+    [ping]
+      entryPoint = "http"
+    [acme]
+    email = "mentat@binaryblur.com"
+    storage = "/ssl/acme/acme.json"
+    acmeLogging = true
+    entryPoint = "https"
+    onHostRule = true
+    # uncomment the line below to use letsencrypt staging servers
+    # caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
+      [acme.dnsChallenge]
+      provider = "gcloud"
+      delayBeforeCheck = 0
