@@ -115,7 +115,7 @@ jobs:
           aws-region: "${AWS_REGION}"
           install-kubectl: true
       - when:
-          condition: "<< parameters.namespace >>"
+          condition: << parameters.namespace >>
           steps:
             - run: kubectl create namespace << parameters.namespace >> || echo "Namespace already exists."
       - kubernetes/create-or-update-resource:
@@ -124,7 +124,7 @@ jobs:
           resource-file-path: k8s/deployment-final.yml
           resource-name: deployment/demo-app
       - when:
-          condition: "<< parameters.namespace >>"
+          condition: << parameters.namespace >>
           steps:    
             - run: kubectl -n << parameters.namespace >> get svc
   # Create/Update GKE Deployment
@@ -158,7 +158,7 @@ jobs:
           cluster: << parameters.cluster-name >>
           install-kubectl: true
       - when:
-          condition: "<< parameters.namespace >>"
+          condition: << parameters.namespace >>
           steps:
             - run: kubectl create namespace << parameters.namespace >> || echo "Namespace already exists."
       - kubernetes/create-or-update-resource:
@@ -167,7 +167,7 @@ jobs:
           resource-file-path: k8s/deployment-final.yml
           resource-name: deployment/demo-app
       - when:
-          condition: "<< parameters.namespace >>"
+          condition: << parameters.namespace >>
           steps:    
             - run: kubectl -n << parameters.namespace >> get svc
   # Create/Update DigitalOcean Deployment
@@ -361,7 +361,7 @@ workflows:
           filters:
             branches:
               only: /^(master|staging)$/
-          namespace: $DEFAULT_NAMESPACE
+          namespace: ""
           tag: $CIRCLE_SHA1
           context: 
             - jlCloudSecrets
@@ -378,7 +378,7 @@ workflows:
           filters:
             branches:
               only: /^(master|staging)$/
-          namespace: $DEFAULT_NAMESPACE
+          namespace: ""
           tag: $CIRCLE_SHA1
           context: 
             - jlCloudSecrets
@@ -395,7 +395,7 @@ workflows:
           filters:
             branches:
               only: /^(master|staging)$/
-          namespace: $DEFAULT_NAMESPACE
+          namespace: ""
           tag: $CIRCLE_SHA1
           context: 
             - jlDigitalOcean
