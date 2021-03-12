@@ -98,6 +98,7 @@ jobs:
         description: |
           The deployment namespace.
         type: string
+        default: ""
       container:
         description: |
           The deployment container including the registry and path. 
@@ -142,6 +143,7 @@ jobs:
         description: |
           The deployment namespace.
         type: string
+        default: ""
       container:
         description: |
           The deployment container including the registry and path.
@@ -184,6 +186,7 @@ jobs:
         description: |
           The deployment namespace.
         type: string
+        default: ""
       container:
         description: |
           The deployment container including the registry and path.
