@@ -114,7 +114,7 @@ jobs:
           aws-region: "${AWS_REGION}"
           install-kubectl: true
       - when:
-          condition: << parameters.namespace >>
+          condition: "<< parameters.namespace >>"
           steps:
             - run: kubectl create namespace << parameters.namespace >> || echo "Namespace already exists."
       - kubernetes/create-or-update-resource:
@@ -123,7 +123,7 @@ jobs:
           resource-file-path: k8s/deployment-final.yml
           resource-name: deployment/demo-app
       - when:
-          condition: << parameters.namespace >>
+          condition: "<< parameters.namespace >>"
           steps:    
             - run: kubectl -n << parameters.namespace >> get svc
   # Create/Update GKE Deployment
@@ -156,7 +156,7 @@ jobs:
           cluster: << parameters.cluster-name >>
           install-kubectl: true
       - when:
-          condition: << parameters.namespace >>
+          condition: "<< parameters.namespace >>"
           steps:
             - run: kubectl create namespace << parameters.namespace >> || echo "Namespace already exists."
       - kubernetes/create-or-update-resource:
@@ -165,7 +165,7 @@ jobs:
           resource-file-path: k8s/deployment-final.yml
           resource-name: deployment/demo-app
       - when:
-          condition: << parameters.namespace >>
+          condition: "<< parameters.namespace >>"
           steps:    
             - run: kubectl -n << parameters.namespace >> get svc
   # Create/Update DigitalOcean Deployment
@@ -201,13 +201,13 @@ jobs:
           digitalocean-access-token: DIGITALOCEAN_ACCESS_TOKEN
       - run: doctl kubernetes cluster kubeconfig save << parameters.cluster-name >>
       - when:
-          condition: << parameters.namespace >>
+          condition: "<< parameters.namespace >>"
           steps:
             - run: kubectl create namespace << parameters.namespace >> || echo "Namespace already exists."
             - run: doctl registry kubernetes-manifest --namespace << parameters.namespace >> | kubectl -n << parameters.namespace >> apply -f -
             - run: "kubectl -n << parameters.namespace >> patch serviceaccount default -p '{\"imagePullSecrets\": [{\"name\": \"registry-circle-demo-deploy\"}]}'"  
       - unless:
-          condition: << parameters.namespace >>
+          condition: "<< parameters.namespace >>"
           steps:
             - run: doctl registry kubernetes-manifest | kubectl apply -f -
             - run: "kubectl patch serviceaccount default -p '{\"imagePullSecrets\": [{\"name\": \"registry-circle-demo-deploy\"}]}'"
@@ -217,7 +217,7 @@ jobs:
           resource-file-path: k8s/deployment-final.yml
           resource-name: deployment/demo-app
       - when:
-          condition: << parameters.namespace >>
+          condition: "<< parameters.namespace >>"
           steps:    
             - run: kubectl -n << parameters.namespace >> get svc
   # Build and push Docker image to Google GCR
